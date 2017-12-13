@@ -1,0 +1,79 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+	"summary": "Pull request 85135741",
+	"themeColor": "0078D7",
+	"title": "New pull request: \"Name of pull request (or pull request # if name is empty)\"",
+	"sections": [
+		{
+			"activityTitle": "Miguel Garcia opened a pull request",
+			"activitySubtitle": "9/13/2016, 11:46am",
+			"activityImage": "http://connectorsdemo.azurewebsites.net/images/MSC12_Oscar_002.jpg",
+			"facts": [
+				{
+					"name": "Pull request #:",
+					"value": "85135745"
+				},
+				{
+					"name": "Repository:",
+					"value": "mgarcia/test"
+				},
+				{
+					"name": "Base:",
+					"value": "mgarcia:master"
+				},
+				{
+					"name": "Head:",
+					"value": "mgarcia:testbranch"
+				},
+				{
+					"name": "Commits:",
+					"value": "2"
+				},
+				{
+					"name": "Files changed:",
+					"value": "3"
+				}
+			],
+			"text": "Description of the pull request"
+		}
+	],
+	"potentialAction": [
+		{
+			"@type": "ActionCard",
+			"name": "Add a comment",
+			"inputs": [
+				{
+					"@type": "TextInput",
+					"id": "comment",
+					"title": "Enter your comment",
+					"isMultiline": true
+				}
+			],
+			"actions": [
+				{
+					"@type": "HttpPOST",
+					"name": "OK",
+					"target": "http://..."
+				}
+			]
+		},
+		{
+			"@type": "HttpPOST",
+			"name": "Merge",
+			"target": "http://..."
+		},
+		{
+			"@type": "HttpPOST",
+			"name": "Close",
+			"target": "http://..."
+		},
+		{
+			"@type": "OpenUri",
+			"name": "View in GitHub",
+			"targets": [
+				{ "os": "default", "uri": "http://..." }
+			]
+		}
+	]
+}

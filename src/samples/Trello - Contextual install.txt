@@ -1,0 +1,32 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+	"summary": "Card \"Test card\"",
+	"themeColor": "0078D7",
+	"sections": [
+		{
+		    "style": "emphasis",
+			"activityTitle": "## Trello Connector for Outlook",
+			"activityImage": "https://s3.amazonaws.com/trello/images/og/trello-icon.png?v=2013-08-15",
+			"activityImageStyle": "normal",
+			"text": "Work on your Trello boards within Outlook to be more productive and never miss an update from your team.",
+        	"potentialAction": [
+        		{
+        			"@type": "ActionCard",
+        			"actions": [
+        				{
+        					"@type": "HttpPOST",
+        					"name": "Try it!",
+        					"target": "http://..."
+        				},
+        				{
+        					"@type": "HttpPOST",
+        					"name": "Not now",
+        					"target": "http://..."
+        				}
+        			]
+        		}
+        	]
+		}
+	]
+}

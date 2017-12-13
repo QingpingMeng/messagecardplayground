@@ -5,11 +5,11 @@ import MonacoEditor from 'react-monaco-editor';
 export interface EditorPanelState {
     width: number;
     height: number;
-    value: string;
 }
 
 export interface EditorPanelProps {
     onChange: (newVal: string) => void;
+    text: string;
 }
 
 export default class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
@@ -19,7 +19,6 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
         this.state = {
             width: window.innerWidth, 
             height: window.innerHeight,
-            value: '',
         };
         this.onChange = this.onChange.bind(this);
     }
@@ -27,10 +26,6 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
     public editorDidMount(editor: monaco.editor.ICodeEditor): void {
         editor.focus();
         return;
-    }
-
-    public getValue(): string {
-        return this.state.value;
     }
 
     public componentDidMount() {
@@ -52,16 +47,20 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
             formatOnPaste: true,
             minimap: {
                 enabled: false,
+            },
+            scrollbar: {
+                horizontal: 'auto',
+                vertical: 'auto',
             }
         };
 
         return (
             <div className="editor">
                 <MonacoEditor
-                    width={this.state.width * 0.5}
+                    value={this.props.text}
+                    width={this.state.width * 0.5 - 40}
                     height={this.state.height * 0.85}
                     language="json"
-                    value={this.state.value}
                     options={options}
                     onChange={this.onChange}
                     editorDidMount={this.editorDidMount}
@@ -72,9 +71,6 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
     }
 
     private onChange(newValue: string, e: monaco.editor.IModelContentChangedEvent): void {
-        this.setState({
-            value: newValue
-        });
         this.props.onChange(newValue);
     }
 }

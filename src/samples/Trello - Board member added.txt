@@ -1,0 +1,29 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+	"summary": "Board \"Test board\"",
+	"themeColor": "0078D7",
+	"title": "Member added to board \"Board name\"",
+	"sections": [
+		{
+			"activityTitle": "Miguel Garcia",
+			"activitySubtitle": "9/16/2016, 9:58am",
+			"activityImage": "http://connectorsdemo.azurewebsites.net/images/MSC12_Oscar_002.jpg",
+			"facts": [
+				{
+					"name": "New member:",
+					"value": "David Claux"
+				}
+			],
+			"potentialAction": [
+				{
+					"@type": "OpenUri",
+					"name": "View in Trello",
+					"targets": [
+						{ "os": "default", "uri": "http://..." }
+					]
+				}
+			]
+		}
+	]
+}

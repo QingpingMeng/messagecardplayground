@@ -1,5 +1,6 @@
 /* tslint:disable */
 import { Image, Column, Container, Action, OpenUrlAction, SubmitAction, HttpAction } from "adaptivecards";
+const md = require('markdown-it')();
 
 export function parseElement(element: any, json: any) {
     if (typeof json["isVisible"] === "boolean") {
@@ -28,6 +29,10 @@ export function anchorClicked(anchor: HTMLAnchorElement): boolean {
     else {
         return false;
     }
+}
+
+export function processMarkdown(text:string){
+    return md.render(text);
 }
 
 export function actionExecuted(action: Action) {

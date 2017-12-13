@@ -1,0 +1,19 @@
+.navbar-header{
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.sample-select > a > *{
+    margin-left: 10px;
+    display:inline-block;
+    vertical-align: middle;
+}
+
+.sample-select > a {
+    padding-left: 0 !important;
+    margin-left:-10px;
+}
+
+.sample-dropdown{
+    min-width: 240px;
+}

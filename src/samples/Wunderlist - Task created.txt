@@ -1,0 +1,88 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+	"summary": "Task \"Test task\"",
+	"themeColor": "E81123",
+	"sections": [
+		{
+			"activityTitle": "Miguel Garcia added a new task",
+			"activitySubtitle": "9/13/2016, 4:15pm",
+			"activityImage": "http://connectorsdemo.azurewebsites.net/images/MSC12_Oscar_002.jpg",
+			"facts": [
+				{
+					"name": "Task:",
+					"value": "Test"
+				},
+				{
+					"name": "List:",
+					"value": "inbox"
+				},
+				{
+					"name": "Assigned to:",
+					"value": "(none)"
+				},
+				{
+					"name": "Due date:",
+					"value": "(none)"
+				}
+			]
+		}
+	],
+	"potentialAction": [
+		{
+			"@type": "ActionCard",
+			"name": "Set due date",
+			"inputs": [
+				{
+					"@type": "DateInput",
+					"id": "dueDate",
+					"title": "Select a date"
+				}
+			],
+			"actions": [
+				{
+					"@type": "HttpPOST",
+					"name": "OK",
+					"target": "http://...",
+					"successMessage": "The due date was successfully set.",
+					"errorMessage": "The due date couldn't be set. Please try again."
+				}
+			]
+		},
+		{
+			"@type": "ActionCard",
+			"name": "Add a note",
+			"inputs": [
+				{
+					"@type": "TextInput",
+					"id": "comment",
+					"isMultiline": true,
+					"title": "Enter your note"
+				}
+			],
+			"actions": [
+				{
+					"@type": "HttpPOST",
+					"name": "OK",
+					"target": "http://...",
+					"successMessage": "Your comment was successfully posted.",
+					"errorMessage": "Your comment couldn't be posted. Please try again."
+				}
+			]
+		},
+		{
+			"@type": "HttpPOST",
+			"name": "Mark as starred",
+			"target": "http://...",
+			"successMessage": "The action completed successfully.",
+			"errorMessage": "An error occurred. Please try again."
+		},
+		{
+			"@type": "OpenUri",
+			"name": "View in Wunderlist",
+			"targets": [
+				{ "os": "default", "uri": "http://..." }
+			]
+		}
+	]
+}

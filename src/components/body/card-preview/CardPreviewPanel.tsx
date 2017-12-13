@@ -3,7 +3,7 @@ import './CardPreviewPanel.css';
 import { MessageCard, InvokeAddInCommandAction } from '../../../utilities/message-card';
 import { AdaptiveCard, Action, ActionSet, HttpAction } from 'adaptivecards';
 import { defaultCardConfig, initializeHostContainers } from '../../../utilities/host-containers';
-import { actionExecuted, parseElement, anchorClicked } from '../../../utilities/call-registry';
+import { actionExecuted, parseElement, anchorClicked, processMarkdown } from '../../../utilities/call-registry';
 
 export interface CardPreviewProps {
     payload: string;
@@ -85,6 +85,7 @@ export default class CardPreviewPanel extends React.Component<CardPreviewProps> 
         AdaptiveCard.onExecuteAction = actionExecuted;
         AdaptiveCard.onParseElement = parseElement;
         AdaptiveCard.onAnchorClicked = anchorClicked;
+        AdaptiveCard.processMarkdown = processMarkdown;
     }
 }
 

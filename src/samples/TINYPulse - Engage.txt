@@ -1,0 +1,46 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+    "summary": "Poll: What do you love about your job?",
+    "themeColor": "E81123",
+    "sections": [
+        {
+            "heroImage": {
+                "image": "http://messagecardplayground.azurewebsites.net/assets/TINYPulseEngageBanner.png"
+            }
+        },
+        {
+            "startGroup": true,
+            "activityImage": "http://messagecardplayground.azurewebsites.net/assets/TINYPulseQuestionIcon.png",
+            "activityImageStyle": "normal",
+            "activityTitle": "**What do you love about your job?**",
+            "activityText": "It can be nothing, everything, and anything in between. Sharing is caring.",
+            "potentialAction": [
+                {
+                    "@type": "ActionCard",
+                    "name": "Yes",
+                    "inputs": [
+                        {
+                            "@type": "TextInput",
+                            "id": "comment",
+                            "isMultiline": true,
+                            "title": "Feel free to elaborate"
+                        }
+                    ],
+                    "actions": [
+                        {
+                            "@type": "HttpPOST",
+                            "name": "Answer anonymously",
+                            "isPrimary": true,
+                            "target": "http://..."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "activityTitle": "**Streak: 0** surveys in a row",
+            "activitySubtitle": "Survey expires in 15 days on 4/6/2017"
+        }
+    ]
+}

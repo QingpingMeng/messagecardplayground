@@ -1,0 +1,38 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+	"themeColor": "E81123",
+	"sections": [
+		{
+			"activityTitle": "**SpaceX**",
+			"activitySubtitle": "@SpaceX - 3/30/2017",
+			"activityImage": "https://pbs.twimg.com/profile_images/671865418701606912/HECw8AzK_400x400.jpg",
+			"activityText": "More photos from today’s Falcon 9 launch and first stage landing → [http://flickr.com/spacex](http://flickr.com/spacex)",
+			"heroImage": {
+                "image": "https://pbs.twimg.com/media/C8NK1XGUIAA-CJK.jpg"			    
+			},
+			"potentialAction": [
+				{
+					"@type": "HttpPOST",
+					"name": "Like",
+					"target": "http://..."
+				},
+				{
+					"@type": "HttpPOST",
+					"name": "Retweet",
+					"target": "http://..."
+				},
+				{
+					"@type": "OpenUri",
+					"name": "View in Twitter",
+					"targets": [
+						{
+							"os": "default",
+							"uri": "http://..."
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,56 @@
+{
+	"@type": "MessageCard",
+	"@context": "http://schema.org/extensions",
+	"summary": "2 new Yammer posts",
+	"themeColor": "0078D7",
+	"sections": [
+		{
+			"activityImage": "http://connectorsdemo.azurewebsites.net/images/MSC12_Oscar_002.jpg",
+			"activityTitle": "Chase Miller",
+			"activitySubtitle": "2 hours ago - 3 comments",
+			"facts": [
+				{
+					"name": "Keywords:",
+					"value": "Surface"
+				},
+				{
+					"name": "Group:",
+					"value": "Helpdesk Support"
+				}
+			],
+			"text": "Can You Solve the Math Problem That Is Baffling the Internet? More than 530,000 people were commenting on one single Facebook picture. Are you smart enough to figure it out?",
+			"potentialAction": [
+				{
+					"@type": "OpenUri",
+					"name": "View conversation"
+				}
+			]
+		},
+		{
+			"startGroup": true,
+			"activityImage": "http://connectorsdemo.azurewebsites.net/images/MSC12_Oscar_002.jpg",
+			"activityTitle": "Chase Miller",
+			"activitySubtitle": "2 hours ago - 3 comments",
+			"facts": [
+				{
+					"name": "Keywords:",
+					"value": "Surface"
+				},
+				{
+					"name": "Group:",
+					"value": "Helpdesk Support"
+				}
+			],
+			"text": "Can You Solve the Math Problem That Is Baffling the Internet? More than 530,000 people were commenting on one single Facebook picture. Are you smart enough to figure it out?",
+			"potentialAction": [
+				{
+					"@type": "OpenUri",
+					"name": "View conversation"
+				}
+			]
+		}
+	]
+}
+
+
+
