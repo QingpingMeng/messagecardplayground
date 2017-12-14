@@ -1,7 +1,6 @@
 /* tslint:disable */
 
 const authEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
-// const redirectUri = 'https://messagecardplayground.azurewebsites.net';
 const redirectUri = 'http://localhost:3002';
 const appId = 'b4f864d2-9520-4d9a-a7ab-3928e0053ed4';
 const scopes = 'openid profile User.Read Mail.Send';
@@ -11,7 +10,7 @@ export function guid() {
     var buf = new Uint16Array(8);
     const cryptObj = window.crypto || window["msCrypto"];
     cryptObj.getRandomValues(buf);
-    function s4(num) {
+    function s4(num:number) {
         var ret = num.toString(16);
         while (ret.length < 4) {
             ret = '0' + ret;
@@ -37,7 +36,7 @@ export function getAccessToken() {
     return getAccessTokenPromise;
 }
 
-export function parseHashParams(hash) {
+export function parseHashParams(hash:string):any {
     var params = hash.slice(1).split('&');
 
     var paramarray = {};
@@ -57,10 +56,9 @@ function redirectToAad() {
 
 export function handleAuth() {
     const action = window.location.hash.split('=')[0];
-    const isAuthenticated = (sessionStorage.accessToken != null && sessionStorage.accessToken.length > 0);
     const pageMap = {
         '#error': function () {
-            var errorresponse = parseHashParams(window.location.hash);
+            var errorresponse= parseHashParams(window.location.hash);
             if (errorresponse.error === 'login_required' ||
                 errorresponse.error === 'interaction_required') {
                 // For these errors redirect the browser to the login
@@ -71,10 +69,9 @@ export function handleAuth() {
             }
         },
         '#login': function () {
-            getAccessToken(function () {
-                // Redirect to home page
+            getAccessToken().then(()=>{
                 window.location.hash = '#';
-            });
+            })
         },
         '#logout': function () {
             sessionStorage.clear();
@@ -95,7 +92,7 @@ export function handleAuth() {
     }
 }
 
-export function renderError(error, description) {
+export function renderError(error:string, description:string) {
     var title = decodePlusEscaped(error);
     var text = decodePlusEscaped(description);
     swal({title: title, text: text, type: "error"});
@@ -121,7 +118,17 @@ export function buildAuthUrl() {
     }).join('&');
 }
 
-function handleTokenResponse(hash) {
+function decodePlusEscaped(value: string) {
+    // decodeURIComponent doesn't handle spaces escaped
+    // as '+'
+    if (value) {
+      return decodeURIComponent(value.replace(/\+/g, ' '));
+    } else {
+      return '';
+    }
+  }
+
+function handleTokenResponse(hash: string) {
     // clear tokens
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('idToken');
@@ -150,19 +157,19 @@ function handleTokenResponse(hash) {
 
     sessionStorage.idToken = tokenresponse.id_token;
 
-    validateIdToken(function (isValid) {
+    validateIdToken(function (isValid:boolean) {
         if (isValid) {
             // Redirect to home page
             window.location.hash = '#';
         } else {
-            clearUserState();
+            sessionStorage.clear();
             // Report error
             window.location.hash = '#error=Invalid+ID+token&error_description=ID+token+failed+validation,+please+try+signing+in+again.';
         }
     });
 }
 
-function validateIdToken(callback) {
+function validateIdToken(callback:(foo:boolean)=>void) {
     // Per Azure docs (and OpenID spec), we MUST validate
     // the ID token before using it. However, full validation
     // of the signature currently requires a server-side component
@@ -182,7 +189,6 @@ function validateIdToken(callback) {
 
     // Parse the token parts
     var base64 = require('base-64');
-    var header = JSON.parse(base64.decode(tokenParts[0]));
     var payload = JSON.parse(base64.decode(tokenParts[1]));
 
     // Check the nonce
