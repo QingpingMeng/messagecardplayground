@@ -17,3 +17,7 @@
 .sample-dropdown{
     min-width: 240px;
 }
+
+.fileUploader{
+    display: none !important;
+}

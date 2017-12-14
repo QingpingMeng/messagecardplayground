@@ -50,6 +50,11 @@ class App extends React.Component<{}, AppState> {
     return (
       <div id="app">
         <Header
+          onSampleUploaded={(payload) => {
+            this.setState({
+              editorText: payload,
+            });
+          }}
           payload={this.state.editorText}
           selectedIndex={this.state.seletedSampleIndex}
           onSelectedSampleChanged={this.onSelectedSampleChanged}

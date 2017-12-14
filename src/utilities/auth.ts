@@ -1,8 +1,7 @@
 /* tslint:disable */
-
+import {debugConfig, prodConfig} from '../config';
 const authEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
-const redirectUri = 'http://localhost:3002';
-const appId = 'b4f864d2-9520-4d9a-a7ab-3928e0053ed4';
+const config = process.env.NODE_ENV === "production"? prodConfig : debugConfig;
 const scopes = 'openid profile User.Read Mail.Send';
 const swal = require('sweetalert2');
 
@@ -105,8 +104,8 @@ export function buildAuthUrl() {
 
     var authParams = {
         response_type: 'id_token token',
-        client_id: appId,
-        redirect_uri: redirectUri,
+        client_id: config.appId,
+        redirect_uri: config.redirectUri,
         scope: scopes,
         state: sessionStorage.authState,
         nonce: sessionStorage.authNonce,
@@ -200,7 +199,7 @@ function validateIdToken(callback:(foo:boolean)=>void) {
     sessionStorage.authNonce = '';
 
     // Check the audience
-    if (payload.aud != appId) {
+    if (payload.aud != config.appId) {
         callback(false);
     }
 
