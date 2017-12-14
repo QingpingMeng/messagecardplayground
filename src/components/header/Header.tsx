@@ -5,6 +5,7 @@ import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { Label } from 'office-ui-fabric-react/lib/Label';
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { sendEmail } from '../../utilities/send-email';
+import { postToWebhook } from '../../utilities/post-to-webhook';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -48,7 +49,6 @@ export default class Header extends React.Component<HeaderProps> {
     }
 
     public render() {
-        const sendEmailFunc = sendEmail.bind(this);
         return (
             <Navbar fluid={true}>
                 <Navbar.Header>
@@ -86,6 +86,7 @@ export default class Header extends React.Component<HeaderProps> {
                         <DefaultButton
                             primary={true}
                             onClick={() => {
+                                const sendEmailFunc = sendEmail.bind(this);
                                 sendEmailFunc(this.props.payload);
                             }}
                             data-automation-id="test"
@@ -95,6 +96,10 @@ export default class Header extends React.Component<HeaderProps> {
                     <NavItem eventKey={2} href="#">
                         <DefaultButton
                             primary={true}
+                            onClick={() => {
+                                const postToWebhookFunc = postToWebhook.bind(this);
+                                postToWebhookFunc(this.props.payload);
+                            }}
                             data-automation-id="test"
                             text="Send via Webhook"
                         />

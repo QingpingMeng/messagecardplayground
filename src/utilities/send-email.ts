@@ -38,7 +38,8 @@ export function sendEmail(payload: string): Promise<boolean> {
                 }
             };
 
-            return getAccessToken().then((accessToken: string) => {
+            return getAccessToken()
+            .then((accessToken: string) => {
                 return axios.post(
                     `${apiEndpoint}/me/sendmail`,
                     {
@@ -64,7 +65,7 @@ export function sendEmail(payload: string): Promise<boolean> {
         }).catch((reason) => {
             swal(
                 `Something went wrong, the email couldn't be sent.`,
-                `Error: ${JSON.stringify(reason.response.data, null, '\t')}`,
+                `Error: ${reason.message}`,
                 'error'
             );
         });
