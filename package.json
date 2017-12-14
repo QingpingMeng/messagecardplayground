@@ -8,7 +8,9 @@
     "@types/react-monaco-editor": "^0.10.0",
     "adaptivecards": "^1.0.0-beta9",
     "axios": "^0.17.1",
+    "azure-storage-simple": "^0.6.0",
     "base-64": "^0.1.0",
+    "dotenv": "^4.0.0",
     "markdown-it": "^8.4.0",
     "office-ui-fabric-react": "^5.32.0",
     "react": "^16.2.0",
@@ -28,7 +30,9 @@
     "@types/jest": "^21.1.8",
     "@types/node": "^8.0.58",
     "@types/react": "^16.0.29",
-    "@types/react-dom": "^16.0.3"
+    "@types/react-dom": "^16.0.3",
+    "node": "^9.2.0",
+    "node-dir": "^0.1.17"
   },
   "homepage": "https://qms3.blob.core.windows.net/messagecard-playground"
 }
