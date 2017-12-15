@@ -13,6 +13,8 @@ export interface EditorPanelProps {
 }
 
 export default class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
+    private editorContainer: HTMLDivElement | null;
+    private editor: monaco.editor.ICodeEditor | null;
     constructor(props: EditorPanelProps) {
         super(props);
 
@@ -28,9 +30,20 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
         return;
     }
 
+    public updateEditorDimension(): void {
+        if (this.editorContainer) {
+            this.setState({ width: this.editorContainer.clientWidth, height: this.editorContainer.clientHeight });
+            if (this.editor) {
+                this.editor.layout();
+            }
+        }
+    }
+
     public componentDidMount() {
+        this.updateEditorDimension();
+
         window.addEventListener('resize', () => {
-            this.setState({ width: window.innerWidth, height: window.innerHeight });
+            this.updateEditorDimension();
         });
     }
 
@@ -55,11 +68,12 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
         };
 
         return (
-            <div className="editor">
+            <div className="editor" ref={(div) => this.editorContainer = div}>
                 <MonacoEditor
+                    ref={monaco => this.editor = monaco ? monaco.editor : null}
                     value={this.props.text}
-                    width={this.state.width * 0.5 - 40}
-                    height={this.state.height * 0.85}
+                    width={this.state.width}
+                    height={this.state.height}
                     language="json"
                     options={options}
                     onChange={this.onChange}

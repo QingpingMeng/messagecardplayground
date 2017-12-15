@@ -132,17 +132,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
                     </NavItem>
                 </Nav>
                 <Nav pullRight={true}>
-                    <NavItem eventKey={1} disabled={true} href="#">
-                        {this.state.isLoggedIn
-                            ? <Label
-                                style={{ paddingTop: '8px'}}
-                            >
-                                Welcome, {sessionStorage.userDisplayName}
-                            </Label>
-                            : null
-                        }
-                    </NavItem>
-                    <NavItem eventKey={2} href="#">
+                    <NavItem eventKey={1} href="#">
                         <DefaultButton
                             primary={true}
                             onClick={() => {
@@ -177,6 +167,16 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
                         />
                     </NavItem>
                 </Nav>
+                <Navbar.Text pullRight={true}>
+                        {this.state.isLoggedIn
+                            ? <Label
+                                style={{ paddingTop: '8px'}}
+                            >
+                                Welcome, {sessionStorage.userDisplayName}
+                            </Label>
+                            : null
+                        }
+                </Navbar.Text>
             </Navbar>
         );
     }

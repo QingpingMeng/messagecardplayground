@@ -9,60 +9,68 @@ export interface CardPreviewProps {
     payload: string;
 }
 export default class CardPreviewPanel extends React.Component<CardPreviewProps> {
+    private cardPreviewDiv: HTMLDivElement | null;
     public componentDidMount() {
         initializeHostContainers();
         this.initializeAdaptiveCard();
     }
 
-    public render() {
-        try {
-            const card = JSON.parse(this.props.payload);
-            let cardTypeName = card['@type'] || card.type;
-            let renderedCard: HTMLElement | null = null;
+    public componentDidUpdate() {
+        if (this.cardPreviewDiv) {
+            try {
+                const card = JSON.parse(this.props.payload);
+                let cardTypeName = card['@type'] || card.type;
+                let renderedCard: HTMLElement | null = null;
 
-            switch (cardTypeName) {
-                case 'SwiftCard':
-                case 'MessageCard':
-                    let messageCard = new MessageCard();
-                    messageCard.parse(card);
+                switch (cardTypeName) {
+                    case 'SwiftCard':
+                    case 'MessageCard':
+                        let messageCard = new MessageCard();
+                        messageCard.parse(card);
 
-                    if (messageCard.hostContainer) {
-                        this.setTheme(messageCard.hostContainer.styleSheetName);
-                        renderedCard = messageCard.hostContainer.render(messageCard);
-                    }
+                        if (messageCard.hostContainer) {
+                            this.setTheme(messageCard.hostContainer.styleSheetName);
+                            renderedCard = messageCard.hostContainer.render(messageCard);
+                        }
 
-                    break;
-                case 'AdaptiveCard':
-                    let adaptiveCard = new AdaptiveCard();
-                    adaptiveCard.hostConfig = defaultCardConfig;
-                    adaptiveCard.parse(card);
+                        break;
+                    case 'AdaptiveCard':
+                        let adaptiveCard = new AdaptiveCard();
+                        adaptiveCard.hostConfig = defaultCardConfig;
+                        adaptiveCard.parse(card);
 
-                    renderedCard = document.createElement('div');
-                    renderedCard.style.border = '1px solid #EEEEEE';
-                    renderedCard.appendChild(adaptiveCard.render());
+                        renderedCard = document.createElement('div');
+                        renderedCard.style.border = '1px solid #EEEEEE';
+                        renderedCard.appendChild(adaptiveCard.render());
 
-                    break;
-                default:
-                    if (cardTypeName) {
-                        throw new Error('Error: The card\'s type must be specified.');
-                    } else {
-                        throw new Error('Error: Unknown card type: ' + cardTypeName);
-                    }
+                        break;
+                    default:
+                        if (cardTypeName) {
+                            throw new Error('Error: The card\'s type must be specified.');
+                        } else {
+                            throw new Error('Error: Unknown card type: ' + cardTypeName);
+                        }
+                }
+                if (this.cardPreviewDiv && renderedCard) {
+                    this.cardPreviewDiv.innerHTML = '';
+                    this.cardPreviewDiv.appendChild(renderedCard);
+                }
+
+            } catch (e) {
+                if (this.cardPreviewDiv) {
+                    this.cardPreviewDiv.innerHTML = e.toString();
+                }
             }
-
-            return (
-                <div
-                    className="preview"
-                    dangerouslySetInnerHTML={{ __html: renderedCard ? renderedCard.outerHTML : '' }}
-                />
-            );
-        } catch (e) {
-            return (
-                <p>
-                    {e.toString()}
-                </p>
-            );
         }
+    }
+
+    public render() {
+        return (
+            <div
+                className="preview"
+                ref={div => this.cardPreviewDiv = div}
+            />
+        );
     }
 
     private setTheme(themeName: string) {

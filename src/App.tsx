@@ -49,30 +49,34 @@ class App extends React.Component<{}, AppState> {
   render() {
     return (
       <div id="app">
-        <Header
-          onSampleUploaded={(payload) => {
-            this.setState({
-              editorText: payload,
-            });
-          }}
-          payload={this.state.editorText}
-          selectedIndex={this.state.seletedSampleIndex}
-          onSelectedSampleChanged={this.onSelectedSampleChanged}
-        />
         <Grid fluid={true}>
           <Row>
-            <Col xs={6}>
+            <Header
+              onSampleUploaded={(payload) => {
+                this.setState({
+                  editorText: payload,
+                });
+              }}
+              payload={this.state.editorText}
+              selectedIndex={this.state.seletedSampleIndex}
+              onSelectedSampleChanged={this.onSelectedSampleChanged}
+            />
+          </Row>
+          <Row>
+            <Col xs={6} className="fitOneScreen">
               <EditorPanel
                 text={this.state.editorText}
-                onChange={(newValue) => {this.setState({editorText: newValue}); }}
+                onChange={(newValue) => { this.setState({ editorText: newValue }); }}
               />
             </Col>
-            <Col xs={6}>
+            <Col xs={6} className="fitOneScreen">
               <CardPreviewPanel payload={this.state.editorText} />
             </Col>
           </Row>
+          <Row>
+            <Footer />
+          </Row>
         </Grid>
-        <Footer />
       </div>
     );
   }

@@ -1,4 +1,5 @@
 .editor{
     border: 1px solid #eee;
     overflow: hidden;
+    height:100%;
 }
