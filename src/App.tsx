@@ -1,6 +1,5 @@
 import * as React from 'react';
 import './App.css';
-import { Grid, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
@@ -49,34 +48,32 @@ class App extends React.Component<{}, AppState> {
   render() {
     return (
       <div id="app">
-        <Grid fluid={true}>
-          <Row>
-            <Header
-              onSampleUploaded={(payload) => {
-                this.setState({
-                  editorText: payload,
-                });
-              }}
-              payload={this.state.editorText}
-              selectedIndex={this.state.seletedSampleIndex}
-              onSelectedSampleChanged={this.onSelectedSampleChanged}
+        <div className="header">
+          <Header
+            onSampleUploaded={(payload) => {
+              this.setState({
+                editorText: payload,
+              });
+            }}
+            payload={this.state.editorText}
+            selectedIndex={this.state.seletedSampleIndex}
+            onSelectedSampleChanged={this.onSelectedSampleChanged}
+          />
+        </div>
+        <div className="content">
+          <div className="leftPanel fitOneScreen">
+            <EditorPanel
+              text={this.state.editorText}
+              onChange={(newValue) => { this.setState({ editorText: newValue }); }}
             />
-          </Row>
-          <Row>
-            <Col xs={6} className="fitOneScreen">
-              <EditorPanel
-                text={this.state.editorText}
-                onChange={(newValue) => { this.setState({ editorText: newValue }); }}
-              />
-            </Col>
-            <Col xs={6} className="fitOneScreen">
-              <CardPreviewPanel payload={this.state.editorText} />
-            </Col>
-          </Row>
-          <Row>
-            <Footer />
-          </Row>
-        </Grid>
+          </div>
+          <div className="rightPanel fitOneScreen">
+            <CardPreviewPanel payload={this.state.editorText} />
+          </div>
+        </div>
+        <div className="footer">
+          <Footer />
+        </div>
       </div>
     );
   }

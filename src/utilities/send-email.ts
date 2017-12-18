@@ -7,10 +7,12 @@ const swal = require('sweetalert2');
 export function sendEmail(payload: string): Promise<boolean> {
     sessionStorage.pendingEmail = payload;
     const payloadObj = JSON.parse(payload);
+    payloadObj['@type'] = payloadObj['@type'] || payloadObj.type;
+    payloadObj['@context'] = payload['@context'] || 'http://schema.org/extensions';
     const sendMailPromise = new Promise<boolean>((resolve, reject) => {
         getUserEmailAddress().then((maillAddress: string) => {
             const mail = {
-                Subject: payloadObj.cardName || 'Microsoft Graph TypeScript Sample',
+                Subject: payloadObj.cardName || 'MessageCard Playground Test Card',
                 ToRecipients: [{
                     EmailAddress: {
                         Address: maillAddress
