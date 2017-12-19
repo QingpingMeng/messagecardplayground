@@ -6,18 +6,46 @@ import Footer from './components/footer/Footer';
 import EditorPanel from './components/body/editor/EditorPanel';
 import CardPreviewPanel from './components/body/card-preview/CardPreviewPanel';
 import { handleAuth } from './utilities/auth';
+import CardBuilder from './components/body/builder/CardBuilder';
+import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
+import { initializeIcons } from '@uifabric/icons';
 
 export interface AppState {
   editorText: string;
   seletedSampleIndex: number;
+  editorViewName: string;
 }
 
 class App extends React.Component<{}, AppState> {
+  private changeViewButtons = [
+    {
+      key: 'editor',
+      name: 'JSON view',
+      icon: 'textbox',
+      onClick: () => {
+        this.setState({
+          editorViewName: 'json',
+        });
+      }
+    },
+    {
+      key: 'builder',
+      name: 'Interactive view',
+      icon: 'design',
+      onClick: () => {
+        this.setState({
+          editorViewName: 'builder',
+        });
+      }
+    }
+  ];
+
   constructor(props: {}) {
     super(props);
     this.state = {
       editorText: '',
       seletedSampleIndex: 0,
+      editorViewName: 'json',
     };
 
     this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
@@ -26,6 +54,11 @@ class App extends React.Component<{}, AppState> {
   public componentDidMount() {
     // Do auth work
     handleAuth();
+  }
+
+  public componentWillMount() {
+    // Register icons and pull the fonts from the default SharePoint cdn:
+    initializeIcons(undefined, { disableWarnings: true });
   }
 
   public onSelectedSampleChanged(newIndex: number, fileName: string) {
@@ -62,10 +95,20 @@ class App extends React.Component<{}, AppState> {
         </div>
         <div className="content">
           <div className="leftPanel fitOneScreen">
-            <EditorPanel
+          <CommandBar
+            isSearchBoxVisible={false}
+            items={this.changeViewButtons}
+          />
+            {this.state.editorViewName === 'json' ? <EditorPanel
               text={this.state.editorText}
               onChange={(newValue) => { this.setState({ editorText: newValue }); }}
             />
+              :
+              <CardBuilder
+                onCardChanged={(newValue) => { this.setState({ editorText: newValue }); }}
+                payload={this.state.editorText} 
+              />
+            }
           </div>
           <div className="rightPanel fitOneScreen">
             <CardPreviewPanel payload={this.state.editorText} />

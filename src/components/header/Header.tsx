@@ -1,13 +1,9 @@
 import * as React from 'react';
-import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
-import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
-import { Label } from 'office-ui-fabric-react/lib/Label';
-import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
-import { ContextualMenuItemType } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { getAccessToken, handleAuth } from '../../utilities/auth';
 
 const sampleOptions = [
@@ -156,98 +152,6 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
                     farItems={farItemsNonFocusable}
                 />
             </div>
-        );
-    }
-
-    public render2() {
-        return (
-            <Navbar collapseOnSelect={true} fluid={true}>
-               
-                <Navbar.Header>
-                    <Navbar.Brand>
-                        <a href="#">Message Card Playground</a>
-                    </Navbar.Brand>
-                    <Navbar.Toggle />
-                </Navbar.Header>
-                <Navbar.Collapse>
-                    <Nav>
-                        <NavItem eventKey={1} href="#">
-                            <DefaultButton
-                                primary={true}
-                                onClick={() => {
-                                    if (this.fileUploader) {
-                                        this.fileUploader.click();
-                                    }
-                                }}
-                                data-automation-id="test"
-                                text="Load a sample"
-                            />
-                        </NavItem>
-                        <NavItem eventKey={2} className="sample-select">
-                            <Label>or select a sample</Label>
-                            <Dropdown
-                                className="sample-dropdown"
-                                selectedKey={this.props.selectedIndex}
-                                onChanged={this.changeState}
-                                options={
-                                    sampleOptions.map((sample, index) => {
-                                        return {
-                                            key: index,
-                                            text: sample
-                                        };
-                                    })
-                                }
-                            />
-                        </NavItem>
-                    </Nav>
-                    <Nav pullRight={true}>
-                        <NavItem eventKey={1} href="#">
-                            <DefaultButton
-                                primary={true}
-                                onClick={() => {
-                                    const sendEmailFunc = sendEmail.bind(this);
-                                    sendEmailFunc(this.props.payload);
-                                }}
-                                split={true}
-                                style={{ height: '35px' }}
-                                menuProps={{
-                                    items: [
-                                        {
-                                            key: 'calendarEvent',
-                                            name: 'Send via Webhook',
-                                            onClick: () => {
-                                                const postToWebhookFunc = postToWebhook.bind(this);
-                                                postToWebhookFunc(this.props.payload);
-                                            }
-                                        },
-                                        {
-                                            key: 'divider_1',
-                                            itemType: ContextualMenuItemType.Divider
-                                        },
-                                        {
-                                            key: 'auth',
-                                            name: this.state.isLoggedIn ? 'Log out' : 'Log in',
-                                            onClick: this.handleLogin
-                                        }
-                                    ]
-                                }}
-                                data-automation-id="test"
-                                text="Send via email"
-                            />
-                        </NavItem>
-                    </Nav>
-                    <Navbar.Text pullRight={true}>
-                        {this.state.isLoggedIn
-                            ? <Label
-                                style={{ paddingTop: '8px' }}
-                            >
-                                Welcome, {sessionStorage.userDisplayName}
-                            </Label>
-                            : null
-                        }
-                    </Navbar.Text>
-                </Navbar.Collapse>
-            </Navbar>
         );
     }
 }
