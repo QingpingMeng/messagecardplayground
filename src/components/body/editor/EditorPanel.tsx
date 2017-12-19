@@ -1,4 +1,5 @@
 import * as React from 'react';
+import _ from 'lodash';
 import './EditorPanel.css';
 import MonacoEditor from 'react-monaco-editor';
 
@@ -42,9 +43,7 @@ export default class EditorPanel extends React.Component<EditorPanelProps, Edito
     public componentDidMount() {
         this.updateEditorDimension();
 
-        window.addEventListener('resize', () => {
-            this.updateEditorDimension();
-        });
+        window.addEventListener('resize', _.debounce(this.updateEditorDimension.bind(this), 500));
     }
 
     public render() {
