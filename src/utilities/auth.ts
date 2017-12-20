@@ -1,5 +1,7 @@
 /* tslint:disable */
 import {debugConfig, prodConfig} from '../config';
+import { store } from '../index';
+import { logIn, logOut } from '../actions/index';
 const authEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
 const config = process.env.NODE_ENV === "production"? prodConfig : debugConfig;
 const scopes = 'openid profile User.Read Mail.Send';
@@ -68,14 +70,22 @@ export function handleAuth() {
             }
         },
         '#login': function () {
-            getAccessToken().then(()=>{
-                window.location.hash = '#';
+            getAccessToken().then(() => {
+                const unsubscribe = store.subscribe(() =>
+                    console.log(store.getState())
+                )
+                store.dispatch(logIn());
+                window.location.href = "#";
+                unsubscribe();
             })
         },
         '#logout': function () {
-            sessionStorage.clear();
-            // Redirect to home page
-            window.location.hash = '#';
+            const unsubscribe = store.subscribe(() =>
+                console.log(store.getState())
+            )
+            store.dispatch(logOut());
+            window.location.href = "#";
+            unsubscribe();
         },
         // Receive access token
         '#access_token': function () {
@@ -91,7 +101,7 @@ export function handleAuth() {
     }
 }
 
-export function renderError(error:string, description:string) {
+export function renderError(error: string, description: string) {
     var title = decodePlusEscaped(error);
     var text = decodePlusEscaped(description);
     swal({title: title, text: text, type: "error"});

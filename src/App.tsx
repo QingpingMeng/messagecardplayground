@@ -8,12 +8,14 @@ import CardPreviewPanel from './components/body/card-preview/CardPreviewPanel';
 import { handleAuth } from './utilities/auth';
 import CardBuilder from './components/body/builder/CardBuilder';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
+import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 import { initializeIcons } from '@uifabric/icons';
 
 export interface AppState {
   editorText: string;
   seletedSampleIndex: number;
   editorViewName: string;
+  showPanel: boolean;
 }
 
 class App extends React.Component<{}, AppState> {
@@ -46,6 +48,7 @@ class App extends React.Component<{}, AppState> {
       editorText: '',
       seletedSampleIndex: 0,
       editorViewName: 'json',
+      showPanel: false,
     };
 
     this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
@@ -117,6 +120,15 @@ class App extends React.Component<{}, AppState> {
         <div className="footer">
           <Footer />
         </div>
+        <Panel
+          isOpen={this.state.showPanel}
+          type={PanelType.smallFluid}
+          // tslint:disable-next-line:jsx-no-lambda
+          onDismiss={() => this.setState({ showPanel: false })}
+          headerText="Panel - Small, right-aligned, fixed"
+        >
+          <span>Content goes here.</span>
+        </Panel>
       </div>
     );
   }

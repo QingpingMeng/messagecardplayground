@@ -4,7 +4,9 @@ import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
 import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
-import { getAccessToken, handleAuth } from '../../utilities/auth';
+import { handleAuth } from '../../utilities/auth';
+import { connect } from 'react-redux';
+import { State } from '../../reducers/index';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -32,27 +34,21 @@ export interface HeaderProps {
     onSelectedSampleChanged: (newSeletedKey: number, fileName: string) => void;
 }
 
-export interface HeaderState {
+export interface HeaderReduxProps extends HeaderProps {
     isLoggedIn: boolean;
 }
-export default class Header extends React.Component<HeaderProps, HeaderState> {
+
+class Header extends React.Component<HeaderReduxProps> {
     public fileUploader: HTMLInputElement | null;
-    constructor(props: HeaderProps) {
+    constructor(props: HeaderReduxProps) {
         super(props);
 
-        this.state = {
-            isLoggedIn: (sessionStorage.accessToken != null && sessionStorage.accessToken.length > 0)
-        };
         this.changeState = this.changeState.bind(this);
         this.onUploadFile = this.onUploadFile.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
     }
 
     public componentDidMount() {
-        handleAuth();
-        this.setState({
-            isLoggedIn: (sessionStorage.accessToken != null && sessionStorage.accessToken.length > 0)
-        });
         // when component loaded, fill in the payload into editor
         this.props.onSelectedSampleChanged(this.props.selectedIndex, sampleOptions[this.props.selectedIndex]);
     }
@@ -73,13 +69,12 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
     }
 
     public handleLogin() {
-        if (this.state.isLoggedIn) {
-            sessionStorage.clear();
-            this.setState({
-                isLoggedIn: false,
-            });
+        if (this.props.isLoggedIn) {
+            window.location.hash = 'logout';
+            handleAuth();
         } else {
-            getAccessToken();
+            window.location.hash = 'login';
+            handleAuth();
         }
     }
 
@@ -132,8 +127,8 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
             },
             {
                 key: 'auth',
-                icon: this.state.isLoggedIn ? 'SignOut' : 'AADLogo',
-                name: this.state.isLoggedIn ? 'Log out' : 'Log in',
+                icon: this.props.isLoggedIn ? 'SignOut' : 'AADLogo',
+                name: this.props.isLoggedIn ? 'Log out' : 'Log in',
                 onClick: this.handleLogin
             }
         ];
@@ -155,3 +150,11 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
         );
     }
 }
+
+function mapStateToProps(state: State) {
+    return {
+        isLoggedIn: state.isLoggedIn,
+    };
+}
+
+export default connect<{}, {}, HeaderReduxProps>(mapStateToProps, null)(Header) as React.ComponentClass<HeaderProps>;
