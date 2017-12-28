@@ -4,30 +4,34 @@ import { cardBuilder } from '../../../utilities/cardBuilder/cardBuilder';
 import './CardBuilder.css';
 import { section } from '../../../utilities/cardBuilder/cardSection';
 import 'office-ui-fabric-react/dist/css/fabric.min.css';
+import { connect, Dispatch } from 'react-redux';
+import { State } from '../../../reducers/index';
+import { updateCurrentPayload } from '../../../actions/index';
+import { bindActionCreators } from 'redux';
 
-export interface CardBuilderProps {
+export interface CardBuilderReduxProps {
     payload: string;
-    onCardChanged: (payload: string) => void;
+    updateCurrentPayload: (payload: string) => void;
 }
 
-const builder = new cardBuilder();
-
-export default class CardBuilder extends React.Component<CardBuilderProps> {
+class CardBuilder extends React.Component<CardBuilderReduxProps> {
     private builderDiv: HTMLDivElement | null;
+    private builder: cardBuilder;
     private builderObserver = new MutationObserver((mutations) => {
         this.onCardUpdated(null);
     });
 
-    constructor(props: CardBuilderProps) {
+    constructor(props: CardBuilderReduxProps) {
         super(props);
 
-        this.onCardUpdated = _.debounce(this.onCardUpdated, 1000).bind(this);
+        this.onCardUpdated = _.debounce(this.onCardUpdated, 100).bind(this);
     }
 
     public componentDidMount() {
         if (this.props.payload) {
-            builder.loadFromJSON(this.props.payload);
-            builder.render();
+            this.builder = new cardBuilder();
+            this.builder.loadFromJSON(this.props.payload);
+            this.builder.render();
         }
 
         this.builderDiv.addEventListener('keyup', (e) => {
@@ -45,15 +49,6 @@ export default class CardBuilder extends React.Component<CardBuilderProps> {
         this.builderObserver.disconnect();
     }
 
-    public componentDidUpdate() {
-        this.builderObserver.disconnect();
-        if (this.props.payload) {
-            builder.loadFromJSON(this.props.payload);
-            builder.render();
-        }
-        this.startObserve();
-    }
-
     public render() {
         return (
             <div id="builder" ref={(div) => { this.builderDiv = div; }}>
@@ -62,8 +57,8 @@ export default class CardBuilder extends React.Component<CardBuilderProps> {
                     id="btnAddSection"
                     className="addDeleteElement addSection"
                     onClick={() => {
-                        builder.addCardSections(new section());
-                        builder.render();
+                        this.builder.addCardSections(new section());
+                        this.builder.render();
                     }}
                 >
                     <span className="ms-Button-icon">
@@ -75,8 +70,15 @@ export default class CardBuilder extends React.Component<CardBuilderProps> {
         );
     }
 
+    public componentDidUpdate() {
+        if (this.props.payload !== this.builder.cardToJson()) {
+            this.builder.loadFromJSON(this.props.payload);
+            this.builder.render();
+        }
+    }
+
     private onCardUpdated(e: Event | null): void {
-        this.props.onCardChanged(builder.cardToJson());
+        this.props.updateCurrentPayload(this.builder.cardToJson());
         if (e && e.target instanceof HTMLInputElement) {
             const input = e.target as HTMLInputElement;
             input.focus();
@@ -95,3 +97,18 @@ export default class CardBuilder extends React.Component<CardBuilderProps> {
             });
     }
 }
+
+function mapStateToProps(state: State) {
+    return {
+        payload: state.currentPayload,
+    };
+}
+
+function mapDispatchToProps(dispatch: Dispatch<State>) {
+    return {
+        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch)
+    };
+}
+
+export default connect<{}, {}, CardBuilderReduxProps>(
+    mapStateToProps, mapDispatchToProps)(CardBuilder) as React.ComponentClass<{}>;

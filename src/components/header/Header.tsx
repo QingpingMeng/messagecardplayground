@@ -1,12 +1,13 @@
 import * as React from 'react';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
-import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
 import { handleAuth } from '../../utilities/auth';
-import { connect } from 'react-redux';
+import { connect, Dispatch } from 'react-redux';
 import { State } from '../../reducers/index';
+import { updateCurrentPayload, openSidePanel } from '../../actions/index';
+import { bindActionCreators } from 'redux';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -27,15 +28,11 @@ const sampleOptions = [
     'Yammer - Digest'
 ];
 
-export interface HeaderProps {
-    selectedIndex: number;
-    payload: string;
-    onSampleUploaded: (payload: string) => void;
-    onSelectedSampleChanged: (newSeletedKey: number, fileName: string) => void;
-}
-
-export interface HeaderReduxProps extends HeaderProps {
+export interface HeaderReduxProps {
     isLoggedIn: boolean;
+    payload: string;
+    updateCurrentPayload: (newPayload: string) => void;
+    openSidePanel: () => void;
 }
 
 class Header extends React.Component<HeaderReduxProps> {
@@ -43,18 +40,24 @@ class Header extends React.Component<HeaderReduxProps> {
     constructor(props: HeaderReduxProps) {
         super(props);
 
-        this.changeState = this.changeState.bind(this);
         this.onUploadFile = this.onUploadFile.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
+        this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
     }
 
     public componentDidMount() {
         // when component loaded, fill in the payload into editor
-        this.props.onSelectedSampleChanged(this.props.selectedIndex, sampleOptions[this.props.selectedIndex]);
+        this.onSelectedSampleChanged(sampleOptions[0]);
     }
 
-    public changeState(item: IDropdownOption) {
-        this.props.onSelectedSampleChanged(item.key as number, sampleOptions[item.key as number]);
+    public onSelectedSampleChanged(fileName: string): void {
+        const samplePath = require(`../../samples/${fileName}.txt`);
+        fetch(samplePath)
+            .then(response => response.json())
+            .then(response => this.props.updateCurrentPayload(JSON.stringify(response, null, '\t')))
+            .catch(error => {
+                this.props.updateCurrentPayload(JSON.stringify(error, null, '\t'));
+            });
     }
 
     public onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -63,7 +66,7 @@ class Header extends React.Component<HeaderReduxProps> {
             reader.readAsText(e.target.files[0]);
             reader.onload = (event) => {
                 const fileContent: string = (event.target as FileReader).result;
-                this.props.onSampleUploaded(fileContent);
+                this.props.updateCurrentPayload(fileContent);
             };
         }
     }
@@ -98,11 +101,15 @@ class Header extends React.Component<HeaderReduxProps> {
                     return {
                         key: index.toString(),
                         name: sample,
-                        onClick: () => {
-                            this.props.onSelectedSampleChanged(index, sample);
-                        }
+                        onClick: () => this.onSelectedSampleChanged(sample)
                     };
                 })
+            },
+            {
+                key: 'settings',
+                name: 'Options',
+                icon: 'settings',
+                onClick: () =>  this.props.openSidePanel()
             }
         ];
 
@@ -154,7 +161,16 @@ class Header extends React.Component<HeaderReduxProps> {
 function mapStateToProps(state: State) {
     return {
         isLoggedIn: state.isLoggedIn,
+        payload: state.currentPayload,
     };
 }
 
-export default connect<{}, {}, HeaderReduxProps>(mapStateToProps, null)(Header) as React.ComponentClass<HeaderProps>;
+function mapDispatchToProps(dispatch: Dispatch<State>) {
+    return {
+        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
+        openSidePanel: bindActionCreators(openSidePanel, dispatch)
+    };
+}
+
+export default connect<{}, {}, HeaderReduxProps>(
+    mapStateToProps, mapDispatchToProps)(Header) as React.ComponentClass<{}>;
