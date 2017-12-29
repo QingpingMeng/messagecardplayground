@@ -123,41 +123,41 @@ export function updateCurrentEditingCard(card: ActionableMessageCard) {
     };
 }
 
-export function isFetchingStoredCards(isFetching: boolean) {
+function isFetchingStoredCards(isFetching: boolean) {
     return {
         type: FETCH_STORED_CARDS_START,
         payload: isFetching,
     };
 }
 
-export function cardFetchSuccess(cards: ActionableMessageCard[]) {
+function cardFetchSuccess(cards: ActionableMessageCard[]) {
     return {
         type: FETCH_STORED_CARDS_SUCCESS,
         payload: cards,
     };
 }
 
-export function cardFetchError(info: {message: string, type: string}) {
+function cardFetchError(info: {message: string, type: string}) {
     return {
         type: FETCH_STORED_CARDS_ERROR,
         payload: info,
     };
 }
 
-export function cardSaveStart(isSaving: boolean) {
+function cardSaveStart(isSaving: boolean) {
     return {
         type: SAVE_CARD_START,
         payload: true
     };
 }
 
-export function cardSaveSuccess() {
+function cardSaveSuccess() {
     return {
         type: SAVE_CARD_SUCCESS
     };
 }
 
-export function cardSaveError(error: Error) {
+function cardSaveError(error: Error) {
     return {
         type: SAVE_CARD_ERROR,
         payload: error,
@@ -176,24 +176,17 @@ export function closeSidePanel() {
     };
 }
 
-export function deleteCardStart(cardId: string) {
+function deleteCardStart(cardId: string) {
     return {
         type: DELETE_CARD_START,
         payload: cardId
     };
 }
 
-export function deleteCardSuccess(cardId: string) {
+function deleteCardSuccess(cardId: string) {
     return {
         type: DELETE_CARD_SUCCESS,
         payload: cardId,
-    };
-}
-
-export function deleteCardError(error: Error) {
-    return {
-        type: DELETE_CARD_ERROR,
-        payload: error,
     };
 }
 

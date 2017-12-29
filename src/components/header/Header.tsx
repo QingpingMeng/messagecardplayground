@@ -46,8 +46,10 @@ class Header extends React.Component<HeaderReduxProps> {
     }
 
     public componentDidMount() {
-        // when component loaded, fill in the payload into editor
-        this.onSelectedSampleChanged(sampleOptions[0]);
+        // when component loaded and no pending email, fill in the payload into editor
+        if (!sessionStorage.getItem('pendingEmail')) {
+            this.onSelectedSampleChanged(sampleOptions[0]);
+        }
     }
 
     public onSelectedSampleChanged(fileName: string): void {
@@ -112,7 +114,7 @@ class Header extends React.Component<HeaderReduxProps> {
                 title: !this.props.isLoggedIn ? 'Sign in to view more options' : undefined,
                 disabled: !this.props.isLoggedIn,
                 style: {
-                    'pointer-events': 'auto', // enable tooltip for disabled buttons
+                    pointerEvents: 'auto', // enable tooltip for disabled buttons
                 },
                 onClick: () => this.props.isLoggedIn && this.props.openSidePanel()
             }
@@ -124,6 +126,7 @@ class Header extends React.Component<HeaderReduxProps> {
                 name: 'Send via email',
                 icon: 'send',
                 onClick: () => {
+                    sessionStorage.setItem('pendingEmail', this.props.payload);
                     const sendEmailFunc = sendEmail.bind(this);
                     sendEmailFunc(this.props.payload);
                 }

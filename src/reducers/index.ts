@@ -47,11 +47,17 @@ const swal = require('sweetalert2');
 function playgroundReducer(state: State = initialState, action: Actions[keyof Actions]): State {
     switch (action.type) {
         case UPDATE_CURRENT_PAYLOAD:
-            return Object.assign({}, state, { 
-                currentEditingCard: {...state.currentEditingCard, body: action.payload} });
+            return Object.assign({}, state, {
+                currentEditingCard: Object.assign(
+                    new ActionableMessageCard(),
+                    state.currentEditingCard,
+                    {
+                        body: action.payload
+                    })
+            });
         case UPDATE_CURRENT_EDITING_CARD:
             const newCard = Object.assign(new ActionableMessageCard(), state.currentEditingCard, action.payload);
-            return Object.assign({}, state, {currentEditingCard: newCard});
+            return Object.assign({}, state, { currentEditingCard: newCard });
         case LOG_OUT:
             sessionStorage.clear();
             return Object.assign({}, state, { isLoggedIn: false });

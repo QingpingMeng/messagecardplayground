@@ -11,18 +11,30 @@ import { initializeIcons } from '@uifabric/icons';
 import { connect } from 'react-redux';
 import { State } from './reducers/index';
 import { Dispatch } from 'redux';
-import { closeSidePanel } from './actions/index';
+import { closeSidePanel, updateCurrentEditingCard } from './actions/index';
 import { bindActionCreators } from 'redux';
+import { sendEmail } from './utilities/send-email';
+import { ActionableMessageCard } from './model/actionable_message_card.model';
 
 export interface AppReduxProps {
   isSidePanelOpen: boolean;
+  isLoggedIn: boolean;
   closeSidePanel: () => void;
+  updateCurrentEditingCard: (val: ActionableMessageCard) => void;
 }
 
 class App extends React.Component<AppReduxProps> {
   public componentDidMount() {
     // Do auth work
     handleAuth();
+
+    const pendingEmail = sessionStorage.getItem('pendingEmail');
+    // restore payload if any
+    if (pendingEmail && this.props.isLoggedIn) {
+      this.props.updateCurrentEditingCard(new ActionableMessageCard(null, pendingEmail));
+      const sendEmailFunc = sendEmail.bind(this);
+      sendEmailFunc(pendingEmail).then(() => sessionStorage.removeItem('pendingEmail'));
+    }
   }
 
   public componentWillMount() {
@@ -64,12 +76,14 @@ class App extends React.Component<AppReduxProps> {
 function mapStateToProps(state: State) {
   return {
     isSidePanelOpen: state.isSidePanelOpen,
+    isLoggedIn: state.isLoggedIn,
   };
 }
 
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
-      closeSidePanel: bindActionCreators(closeSidePanel, dispatch)
+      closeSidePanel: bindActionCreators(closeSidePanel, dispatch),
+      updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
     };
 }
 

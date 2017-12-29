@@ -90,7 +90,7 @@ class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
                     <Spinner size={SpinnerSize.large} label="Loading cards..." ariaLive="assertive" />
                 </div>
             );
-        } else if (this.props.storedCards) {
+        } else if (this.props.storedCards && this.props.storedCards.length > 0) {
             return (
                 <div id="sidePanel">
                     {this.props.sidePanelMessageBar ?
@@ -111,6 +111,15 @@ class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
                     />
                     {confirmDialog}
                 </div>
+            );
+        } else if (this.props.storedCards && this.props.storedCards.length === 0) {
+            return (
+                <MessageBar
+                    messageBarType={MessageBarType.info}
+                    isMultiline={false}
+                >
+                    No card found.
+                </MessageBar>
             );
         }
 
