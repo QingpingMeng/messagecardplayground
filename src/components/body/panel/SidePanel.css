@@ -1,0 +1,55 @@
+.list-group{
+    min-height:54px;
+    padding:10px;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    border-bottom:1px solid #eaeaea;
+    display:-webkit-box;
+    display:-ms-flexbox;
+    display:flex
+}
+.list-group::-moz-focus-inner{
+    border:0
+}
+.list-group{
+    outline:transparent
+}
+.list-group{
+    position:relative
+}
+.ms-Fabric.is-focusVisible .list-group:focus:after{
+    content:'';
+    position:absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    left:0;
+    pointer-events:none;
+    border:1px solid #000000
+}
+.list-group:hover{
+    background:#EEE
+}
+.ms-ListBasicExample-itemImage{
+    -ms-flex-negative:0;
+    flex-shrink:0
+}
+.list-group-item{
+    overflow:hidden;
+    -webkit-box-flex:1;
+    -ms-flex-positive:1;
+    flex-grow:1;
+    display:flex;
+    flex-direction: row;
+    font-size:21px;
+    font-weight:100;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+html[dir='ltr'] .list-group-item{
+    margin-left:10px
+}
+html[dir='rtl'] .list-group-item{
+    margin-right:10px
+}

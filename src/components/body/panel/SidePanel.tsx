@@ -15,8 +15,10 @@ import {
     deleteCard, 
     showSidePanelInfo, 
     updateCurrentEditingCard } from '../../../actions/index';
-import { CommandBar } from 'office-ui-fabric-react/lib/components/CommandBar';
+import { ActionButton, PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
+import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+import './SidePanel.css';
 
 export interface SidePanelReduxProps {
     isLoggedIn: boolean;
@@ -30,14 +32,58 @@ export interface SidePanelReduxProps {
     showSidePanelInfo: (info: {}) => void;
     fetchCardError: Error;
 }
-class SidePanel extends React.Component<SidePanelReduxProps> {
+
+export interface SidePanelState {
+    isConfirmDialogHidden: boolean;
+    cardIdToBeDeleted: string | null;
+}
+
+class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
     public constructor(props: SidePanelReduxProps) {
         super(props);
 
         this.onRenderCell = this.onRenderCell.bind(this);
+        this.state = {
+            isConfirmDialogHidden: true,
+            cardIdToBeDeleted: null,
+        };
     }
 
     public render() {
+        const confirmDialog = (
+            <Dialog
+                hidden={this.state.isConfirmDialogHidden}
+                // onDismiss={this._closeDialog}
+                dialogContentProps={{
+                    type: DialogType.normal,
+                    title: 'Delete this card',
+                    subText: 'Are you sure to delete this card permanently?'
+                }}
+                modalProps={{
+                    isBlocking: true,
+                    containerClassName: 'ms-dialogMainOverride'
+                }}
+            >
+                <DialogFooter>
+                    <PrimaryButton
+                        onClick={
+                            () => {
+                                if (this.state.cardIdToBeDeleted) {
+                                    this.props.deleteCard(this.state.cardIdToBeDeleted);
+                                }
+                                this.setState({
+                                    isConfirmDialogHidden: true,
+                                    cardIdToBeDeleted: null,
+                                });
+                            }
+                        }
+                        text="Save"
+                    />
+                    <DefaultButton onClick={() => this.setState({ isConfirmDialogHidden: true })} text="Cancel" />
+                </DialogFooter>
+            </Dialog>
+        );
+
         if (this.props.isFetchingCards) {
             return (
                 <div>
@@ -46,7 +92,7 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
             );
         } else if (this.props.storedCards) {
             return (
-                <div>
+                <div id="sidePanel">
                     {this.props.sidePanelMessageBar ?
                         <MessageBar
                             messageBarType={
@@ -63,6 +109,7 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
                         items={this.props.storedCards}
                         onRenderCell={this.onRenderCell}
                     />
+                    {confirmDialog}
                 </div>
             );
         }
@@ -76,37 +123,32 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
     }
 
     private onRenderCell(item: ActionableMessageCard, index: number | undefined): JSX.Element {
-        const cardNameItems = [
-            {
-                key: 'cardName',
-                name: item.name || 'Untitled'
-            }
-        ];
-
-        const cardOperationItems = [
-            {
-                key: 'open',
-                name: 'Open',
-                icon: 'openfile',
-                onClick: () => {
-                    this.props.updateCurrentEditingCard(item);
-                    this.props.closeSidePanel();
-                }
-            },
-            {
-                key: 'delte',
-                name: item.isDeleting ? 'Deleting...' : 'Delete',
-                icon: 'delete',
-                onClick: () => this.props.deleteCard(item.id),
-            }
-        ];
-        
         return (
-            <CommandBar
-                isSearchBoxVisible={false}
-                farItems={cardOperationItems}
-                items={cardNameItems}
-            />
+            <div className="list-group" data-is-focusable={true}>
+                <div className="list-group-item">
+                    <span style={{ flex: 1 }}>{item.name}</span>
+                    <div style={{ flex: 0 }}>
+                        <ActionButton
+                            disabled={item.isDeleting}
+                            iconProps={{ iconName: 'openfile' }}
+                            text="Open"
+                            onClick={() => {
+                                this.props.updateCurrentEditingCard(item);
+                                this.props.closeSidePanel();
+                            }}
+                        />
+                        <ActionButton
+                            disabled={item.isDeleting}
+                            iconProps={{ iconName: 'Delete' }}
+                            text={item.isDeleting ? 'Deleting...' : 'Delete'}
+                            onClick={() => this.setState({
+                                isConfirmDialogHidden: false,
+                                cardIdToBeDeleted: item.id,
+                            })}
+                        />
+                    </div>
+                </div>
+            </div>
         );
     }
 }
