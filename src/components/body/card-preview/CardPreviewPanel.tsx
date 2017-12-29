@@ -127,7 +127,7 @@ export class ToggleVisibilityAction extends Action {
 
 function mapStateToProps(state: State) {
     return {
-        payload: state.currentPayload,
+        payload: state.currentEditingCard.body,
     };
 }
 

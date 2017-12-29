@@ -5,7 +5,10 @@ import MonacoEditor from 'react-monaco-editor';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
-import { updateCurrentPayload, saveCard } from '../../../actions/index';
+import { updateCurrentPayload, saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/index';
+import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
+import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { CommandBar } from 'office-ui-fabric-react/lib/components/CommandBar';
 import CardBuilder from '../builder/CardBuilder';
 import { ActionableMessageCard } from '../../../model/actionable_message_card.model';
@@ -14,18 +17,39 @@ import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/components/Spin
 export interface EditorPanelState {
     width: number;
     height: number;
+    isNameDialogHidden: boolean;
 }
 
 export interface EditorPanelReduxProps {
     updateCurrentPayload: (newVal: string) => void;
-    editorText: string;
+    updateCurrentEditingCard: (newCard: ActionableMessageCard) => void;
+    currentEditingCard: ActionableMessageCard;
     isSavingCard: string;
-    saveCard: (card: ActionableMessageCard) => void;
+    saveOrUpdateCard: (card: ActionableMessageCard) => void;
 }
 
 export interface EditorPanelState {
     editorViewName: string;
 }
+
+const requireConfig = {
+    url: 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.1/require.min.js',
+    paths: {
+        'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.10.1/min/vs/'
+    }
+};
+
+const options: monaco.editor.IEditorOptions = {
+    autoIndent: true,
+    formatOnPaste: true,
+    minimap: {
+        enabled: false,
+    },
+    scrollbar: {
+        horizontal: 'auto',
+        vertical: 'auto',
+    }
+};
 
 class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelState> {
     private editorContainer: HTMLDivElement | null;
@@ -53,16 +77,25 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         }
     ];
     private farButtonItems = [{
+        key: 'text',
+        name: `Editing card - ${this.props.currentEditingCard.name || 'untitled card'}`
+    }, {
+        key: 'new',
+        name: 'New',
+        icon: 'add',
+        onClick: () => this.props.updateCurrentEditingCard(new ActionableMessageCard())
+    }, {
         key: 'save',
         name: 'Save',
         icon: 'save',
         onClick: () => {
-            let card = new ActionableMessageCard(
-                'Test Card',
-                this.props.editorText,
-            );
-
-            this.props.saveCard(card);
+            if (this.props.currentEditingCard.name) {
+                this.props.saveOrUpdateCard(this.props.currentEditingCard);
+            } else {
+                this.setState({
+                    isNameDialogHidden: false,
+                });
+            }
         }
     }];
 
@@ -73,8 +106,10 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
             width: window.innerWidth,
             height: window.innerHeight,
             editorViewName: 'json',
+            isNameDialogHidden: true,
         };
         this.onChange = this.onChange.bind(this);
+        this.dismissNameDialog = this.dismissNameDialog.bind(this);
     }
 
     public editorDidMount(editor: monaco.editor.ICodeEditor): void {
@@ -98,28 +133,53 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
     }
 
     public render() {
-        const requireConfig = {
-            url: 'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.1/require.min.js',
-            paths: {
-                'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.10.1/min/vs/'
-            }
-        };
+        this.farButtonItems[0].name = `Editing card - ${this.props.currentEditingCard.name || 'untitled card'}`;
+        this.farButtonItems[2].name = this.props.currentEditingCard.isNewCard ? 'Save' : 'Update';
 
-        const options: monaco.editor.IEditorOptions = {
-            autoIndent: true,
-            formatOnPaste: true,
-            minimap: {
-                enabled: false,
-            },
-            scrollbar: {
-                horizontal: 'auto',
-                vertical: 'auto',
-            }
-        };
+        const nameDialog = (
+            <Dialog
+                hidden={this.state.isNameDialogHidden}
+                // onDismiss={this._closeDialog}
+                dialogContentProps={{
+                    type: DialogType.normal,
+                    title: 'Name your card',
+                }}
+                modalProps={{
+                    isBlocking: true,
+                    containerClassName: 'ms-dialogMainOverride'
+                }}
+            >
+                <TextField
+                    placeholder="Please enter a name for this card"
+                    underlined={true}
+                    required={true}
+                    onChanged={(value) => this.props.updateCurrentEditingCard(
+                        Object.assign(
+                            this.props.currentEditingCard,
+                            {
+                                name: value
+                            }))}
+                />
+                <DialogFooter>
+                    <PrimaryButton
+                        disabled={!this.props.currentEditingCard.name}
+                        onClick={
+                            () => {
+                                this.props.saveOrUpdateCard(this.props.currentEditingCard);
+                                this.dismissNameDialog();
+                            }
+                        }
+                        text="Save"
+                    />
+                    <DefaultButton onClick={this.dismissNameDialog} text="Cancel" />
+                </DialogFooter>
+            </Dialog>
+        );
 
         if (this.state.editorViewName === 'json') {
             return (
                 <div className="editor" ref={(div) => this.editorContainer = div}>
+                    {nameDialog}
                     <CommandBar
                         isSearchBoxVisible={false}
                         farItems={this.farButtonItems}
@@ -130,7 +190,7 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
                         null}
                     <MonacoEditor
                         ref={monaco => this.editor = monaco ? monaco.editor : null}
-                        value={this.props.editorText}
+                        value={this.props.currentEditingCard.body || ''}
                         width={this.state.width}
                         height={this.state.height}
                         language="json"
@@ -144,6 +204,7 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         } else {
             return (
                 <div>
+                    {nameDialog}
                     <CommandBar
                         isSearchBoxVisible={false}
                         farItems={this.farButtonItems}
@@ -152,7 +213,7 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
                     {this.props.isSavingCard ?
                         <Spinner size={SpinnerSize.small} label="Saving..." /> :
                         null}
-                    <CardBuilder />;
+                    <CardBuilder />
                 </div>
             );
         }
@@ -161,10 +222,17 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
     private onChange(newValue: string, e: monaco.editor.IModelContentChangedEvent): void {
         this.props.updateCurrentPayload(newValue);
     }
+
+    private dismissNameDialog() {
+        this.setState({
+            isNameDialogHidden: true,
+        });
+    }
 }
+
 function mapStateToProps(state: State) {
     return {
-        editorText: state.currentPayload,
+        currentEditingCard: state.currentEditingCard,
         isSavingCard: state.isSavingCard
     };
 }
@@ -172,7 +240,8 @@ function mapStateToProps(state: State) {
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
         updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
-        saveCard: bindActionCreators(saveCard, dispatch),
+        updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
+        saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch),
     };
 }
 

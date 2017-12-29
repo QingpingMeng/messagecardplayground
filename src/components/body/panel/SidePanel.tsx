@@ -11,10 +11,10 @@ import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
 import { 
     fetchStoredCard, 
-    updateCurrentPayload, 
     closeSidePanel, 
     deleteCard, 
-    showSidePanelInfo } from '../../../actions/index';
+    showSidePanelInfo, 
+    updateCurrentEditingCard } from '../../../actions/index';
 import { CommandBar } from 'office-ui-fabric-react/lib/components/CommandBar';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 
@@ -24,7 +24,7 @@ export interface SidePanelReduxProps {
     isFetchingCards: boolean;
     sidePanelMessageBar: { message: string, type: string };
     fetchStoredCards: () => { [id: string]: ActionableMessageCard; };
-    updateCurrentPayload: (payload: string) => void;
+    updateCurrentEditingCard: (card: ActionableMessageCard) => void;
     closeSidePanel: () => void;
     deleteCard: (id: string) => void;
     showSidePanelInfo: (info: {}) => void;
@@ -38,22 +38,13 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
     }
 
     public render() {
-        let messageBar = null;
-        if (this.props.sidePanelMessageBar) {
-            messageBar = (
-                <MessageBar
-                    messageBarType={
-                        this.props.sidePanelMessageBar.type === 'error' ? 
-                        MessageBarType.error : 
-                        MessageBarType.success}
-                    isMultiline={false}
-                >
-                    {this.props.sidePanelMessageBar.message}
-                </MessageBar>
+        if (this.props.isFetchingCards) {
+            return (
+                <div>
+                    <Spinner size={SpinnerSize.large} label="Loading cards..." ariaLive="assertive" />
+                </div>
             );
-        }
-
-        if (this.props.storedCards) {
+        } else if (this.props.storedCards) {
             return (
                 <div>
                     {this.props.sidePanelMessageBar ?
@@ -74,18 +65,6 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
                     />
                 </div>
             );
-        } else if (this.props.isFetchingCards) {
-            return (
-                <div>
-                    <Spinner size={SpinnerSize.large} label="Loading cards..." ariaLive="assertive" />
-                </div>
-            );
-        } else if (this.props.fetchCardError) {
-            return (
-                <div>
-                    {this.props.fetchCardError.message}
-                </div>
-            );
         }
 
         return null;
@@ -100,7 +79,7 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
         const cardNameItems = [
             {
                 key: 'cardName',
-                name: item.name || 'NoName'
+                name: item.name || 'Untitled'
             }
         ];
 
@@ -110,7 +89,7 @@ class SidePanel extends React.Component<SidePanelReduxProps> {
                 name: 'Open',
                 icon: 'openfile',
                 onClick: () => {
-                    this.props.updateCurrentPayload(item.body);
+                    this.props.updateCurrentEditingCard(item);
                     this.props.closeSidePanel();
                 }
             },
@@ -137,7 +116,6 @@ function mapStateToProps(state: State) {
         isLoggedIn: state.isLoggedIn,
         storedCards: _.toArray(state.storedCards),
         isFetchingCards: state.isFetchingCards,
-        fetchCardError: state.fetchCardError,
         sidePanelMessageBar: state.sidePanelMessageBar,
     };
 }
@@ -145,7 +123,7 @@ function mapStateToProps(state: State) {
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
         fetchStoredCards: bindActionCreators(fetchStoredCard, dispatch),
-        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
+        updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
         closeSidePanel: bindActionCreators(closeSidePanel, dispatch),
         deleteCard: bindActionCreators(deleteCard, dispatch),
         showSidePanelInfo: bindActionCreators(showSidePanelInfo, dispatch)

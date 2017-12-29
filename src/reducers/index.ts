@@ -15,40 +15,43 @@ import {
     DELETE_CARD_START,
     DELETE_CARD_SUCCESS,
     SHOW_SIDE_PANEL_INFO,
+    UPDATE_CURRENT_EDITING_CARD,
 }
     from '../actions/index';
 import { handleAuth } from '../utilities/auth';
 
 export type State = {
-    readonly currentPayload: string;
     readonly editorText: string;
     readonly storedCards: { [id: string]: ActionableMessageCard; };
     readonly isLoggedIn: boolean;
     readonly isFetchingCards: boolean;
-    readonly fetchCardError: Error | null;
     readonly isSavingCard: boolean;
     readonly saveCardError: Error | null;
     readonly isSidePanelOpen: boolean;
     readonly sidePanelMessageBar: { message: string, type: string } | null;
+    readonly currentEditingCard: ActionableMessageCard | null;
 };
 
 const initialState: State = {
-    currentPayload: '',
     editorText: '',
     storedCards: null,
     isLoggedIn: sessionStorage.getItem('accessToken') ? true : false,
     isFetchingCards: false,
-    fetchCardError: null,
     isSavingCard: false,
     saveCardError: null,
     isSidePanelOpen: false,
     sidePanelMessageBar: null,
+    currentEditingCard: new ActionableMessageCard(),
 };
 const swal = require('sweetalert2');
 function playgroundReducer(state: State = initialState, action: Actions[keyof Actions]): State {
     switch (action.type) {
         case UPDATE_CURRENT_PAYLOAD:
-            return Object.assign({}, state, { currentPayload: action.payload });
+            return Object.assign({}, state, { 
+                currentEditingCard: {...state.currentEditingCard, body: action.payload} });
+        case UPDATE_CURRENT_EDITING_CARD:
+            const newCard = Object.assign(new ActionableMessageCard(), state.currentEditingCard, action.payload);
+            return Object.assign({}, state, {currentEditingCard: newCard});
         case LOG_OUT:
             sessionStorage.clear();
             return Object.assign({}, state, { isLoggedIn: false });
@@ -61,9 +64,20 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
         case FETCH_STORED_CARDS_START:
             return Object.assign({}, state, { isFetchingCards: action.payload, fetchCardError: null });
         case FETCH_STORED_CARDS_ERROR:
-            return Object.assign({}, state, { fetchCardError: action.payload, isFetchingCards: false });
+            return Object.assign({}, state, { sidePanelMessageBar: action.payload, isFetchingCards: false });
         case FETCH_STORED_CARDS_SUCCESS:
-            return Object.assign({}, state, { storedCards: _.keyBy(action.payload, 'id'), fetchCardError: null });
+            return Object.assign({}, state, {
+                storedCards: _.keyBy( // array to object
+                    _.map( // loaded cards are not new anymore
+                        action.payload,
+                        card => {
+                            card.isNewCard = false;
+                            return card;
+                        }),
+                    'id'),
+                isFetchingCards: false,
+                fetchCardError: null
+            });
         case SAVE_CARD_START:
             return Object.assign({}, state, { isSavingCard: action.payload, saveCardError: null });
         case SHOW_SIDE_PANEL_INFO:

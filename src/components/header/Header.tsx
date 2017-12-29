@@ -109,7 +109,12 @@ class Header extends React.Component<HeaderReduxProps> {
                 key: 'settings',
                 name: 'Options',
                 icon: 'settings',
-                onClick: () =>  this.props.openSidePanel()
+                title: !this.props.isLoggedIn ? 'Sign in to view more options' : undefined,
+                disabled: !this.props.isLoggedIn,
+                style: {
+                    'pointer-events': 'auto', // enable tooltip for disabled buttons
+                },
+                onClick: () => this.props.isLoggedIn && this.props.openSidePanel()
             }
         ];
 
@@ -161,7 +166,7 @@ class Header extends React.Component<HeaderReduxProps> {
 function mapStateToProps(state: State) {
     return {
         isLoggedIn: state.isLoggedIn,
-        payload: state.currentPayload,
+        payload: state.currentEditingCard.body,
     };
 }
 

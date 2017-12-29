@@ -1,5 +1,5 @@
 export const debugConfig = {
-    redirectUri : 'http://localhost:3002',
+    redirectUri : 'http://localhost:3000',
     appId : 'b4f864d2-9520-4d9a-a7ab-3928e0053ed4',
 };
 

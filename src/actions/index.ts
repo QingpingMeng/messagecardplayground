@@ -17,6 +17,7 @@ export const DELETE_CARD_START = 'DELETE_CARD_START';
 export const DELETE_CARD_SUCCESS = 'DELETE_CARD_SUCCESS';
 export const DELETE_CARD_ERROR = 'DELETE_CARD_ERROR';
 export const SHOW_SIDE_PANEL_INFO = 'SHOW_SIDE_PANEL_INFO';
+export const UPDATE_CURRENT_EDITING_CARD = 'UPDATE_CURRENT_EDITNG_CARD';
 
 export const API_ROOT = 'http://localhost:50188/api'; 
 
@@ -39,6 +40,10 @@ export type Actions = {
         type: typeof UPDATE_CURRENT_PAYLOAD,
         payload: string,
     },
+    UPDATE_CURRENT_EDITING_CARD: {
+        type: typeof UPDATE_CURRENT_EDITING_CARD,
+        payload: ActionableMessageCard,
+    }
     FETCH_STORED_CARDS_START: {
         type: typeof FETCH_STORED_CARDS_START,
         payload: boolean;
@@ -49,7 +54,10 @@ export type Actions = {
     },
     FETCH_STORED_CARDS_ERROR: {
         type: typeof FETCH_STORED_CARDS_ERROR,
-        payload: Error;
+        payload: {
+            message: string,
+            type: string,
+        };
     },
     SAVE_CARD_START: {
         type: typeof SAVE_CARD_START,
@@ -108,6 +116,13 @@ export function updateCurrentPayload(newPayload: string): Actions[keyof Actions]
     };
 }
 
+export function updateCurrentEditingCard(card: ActionableMessageCard) {
+    return {
+        type: UPDATE_CURRENT_EDITING_CARD,
+        payload: card,
+    };
+}
+
 export function isFetchingStoredCards(isFetching: boolean) {
     return {
         type: FETCH_STORED_CARDS_START,
@@ -122,10 +137,10 @@ export function cardFetchSuccess(cards: ActionableMessageCard[]) {
     };
 }
 
-export function cardFetchError(error: Error) {
+export function cardFetchError(info: {message: string, type: string}) {
     return {
         type: FETCH_STORED_CARDS_ERROR,
-        payload: error,
+        payload: info,
     };
 }
 
@@ -223,11 +238,11 @@ export function fetchStoredCard() {
         fetch(`${API_ROOT}/users/users/cards`)
             .then(response => response.json())
             .then(cards => dispatch(cardFetchSuccess(cards)))
-            .catch(error => dispatch(cardFetchError(new Error(error.message))));
+            .catch(error => dispatch(cardFetchError({message: error.message, type: 'error'})));
     };
 }
 
-export function saveCard(card: ActionableMessageCard) {
+export function saveOrUpdateCard(card: ActionableMessageCard) {
     return dispatch => {
         dispatch(cardSaveStart(true));
         fetch(
@@ -241,8 +256,9 @@ export function saveCard(card: ActionableMessageCard) {
                 body: JSON.stringify(card),
             })
             .then(() => {
-                dispatch(cardSaveSuccess()); 
+                dispatch(cardSaveSuccess());
                 dispatch(fetchStoredCard());
+                dispatch(updateCurrentEditingCard(Object.assign(card, {isNewCard: false})));
             })
             .catch(error => dispatch(cardSaveError(new Error(error.message))));
     };

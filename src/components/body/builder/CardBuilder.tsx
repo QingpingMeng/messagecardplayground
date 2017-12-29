@@ -100,7 +100,7 @@ class CardBuilder extends React.Component<CardBuilderReduxProps> {
 
 function mapStateToProps(state: State) {
     return {
-        payload: state.currentPayload,
+        payload: state.currentEditingCard.body,
     };
 }
 
