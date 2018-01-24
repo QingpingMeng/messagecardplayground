@@ -1,4 +1,5 @@
 import { ActionableMessageCard } from '../model/actionable_message_card.model';
+import axios from 'axios';
 
 export const LOG_IN = 'LOG_IN';
 export const LOG_OUT = 'LOG_OUT';
@@ -207,7 +208,8 @@ export function deleteCard(cardId: string, cardName: string) {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
                 },
             }
         )
@@ -228,10 +230,16 @@ export function deleteCard(cardId: string, cardName: string) {
 export function fetchStoredCard() {
     return (dispatch) => {
         dispatch(isFetchingStoredCards(true));
-        fetch(`${API_ROOT}/users/users/cards`)
+        fetch(`${API_ROOT}/users/users/cards`, {
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+                'Accept': 'application/json',
+            },
+            mode: 'cors',
+        })
             .then(response => response.json())
             .then(cards => dispatch(cardFetchSuccess(cards)))
-            .catch(error => dispatch(cardFetchError({message: error.message, type: 'error'})));
+            .catch(error => dispatch(cardFetchError({ message: error.message, type: 'error' })));
     };
 }
 
@@ -244,7 +252,8 @@ export function saveOrUpdateCard(card: ActionableMessageCard) {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
                 },
                 body: JSON.stringify(card),
             })

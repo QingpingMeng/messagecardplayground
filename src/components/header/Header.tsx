@@ -1,6 +1,7 @@
 import * as React from 'react';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
+import { ContextualMenuItemType, IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
 import { handleAuth } from '../../utilities/auth';
@@ -86,26 +87,31 @@ class Header extends React.Component<HeaderReduxProps> {
     public render() {
         const itemsNonFocusable = [
             {
-                key: 'upload',
-                name: 'Load a sample',
-                icon: 'upload',
-                onClick: () => {
-                    if (this.fileUploader) {
-                        this.fileUploader.click();
-                    }
-                }
-            },
-            {
                 key: 'select',
                 name: 'Select a sample',
                 icon: 'dropdown',
-                items: sampleOptions.map((sample, index) => {
+                items: (sampleOptions.map((sample, index) => {
                     return {
                         key: index.toString(),
                         name: sample,
                         onClick: () => this.onSelectedSampleChanged(sample)
                     };
-                })
+                }) as IContextualMenuItem[]).concat([
+                    {
+                        key: 'divider_1',
+                        itemType: ContextualMenuItemType.Divider
+                    },
+                    {
+                        key: 'upload',
+                        name: 'Load a sample',
+                        icon: 'upload',
+                        onClick: () => {
+                            if (this.fileUploader) {
+                                this.fileUploader.click();
+                            }
+                        }
+                    }
+                ])
             },
             {
                 key: 'settings',
