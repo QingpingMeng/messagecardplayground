@@ -1,10 +1,14 @@
 import * as React from 'react';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
-import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { ContextualMenuItemType, IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
-import { getAccessToken, handleAuth } from '../../utilities/auth';
+import { handleAuth } from '../../utilities/auth';
+import { connect, Dispatch } from 'react-redux';
+import { State } from '../../reducers/index';
+import { updateCurrentPayload, openSidePanel } from '../../actions/index';
+import { bindActionCreators } from 'redux';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -25,40 +29,38 @@ const sampleOptions = [
     'Yammer - Digest'
 ];
 
-export interface HeaderProps {
-    selectedIndex: number;
+export interface HeaderReduxProps {
+    isLoggedIn: boolean;
     payload: string;
-    onSampleUploaded: (payload: string) => void;
-    onSelectedSampleChanged: (newSeletedKey: number, fileName: string) => void;
+    updateCurrentPayload: (newPayload: string) => void;
+    openSidePanel: () => void;
 }
 
-export interface HeaderState {
-    isLoggedIn: boolean;
-}
-export default class Header extends React.Component<HeaderProps, HeaderState> {
+class Header extends React.Component<HeaderReduxProps> {
     public fileUploader: HTMLInputElement | null;
-    constructor(props: HeaderProps) {
+    constructor(props: HeaderReduxProps) {
         super(props);
 
-        this.state = {
-            isLoggedIn: (sessionStorage.accessToken != null && sessionStorage.accessToken.length > 0)
-        };
-        this.changeState = this.changeState.bind(this);
         this.onUploadFile = this.onUploadFile.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
+        this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
     }
 
     public componentDidMount() {
-        handleAuth();
-        this.setState({
-            isLoggedIn: (sessionStorage.accessToken != null && sessionStorage.accessToken.length > 0)
-        });
-        // when component loaded, fill in the payload into editor
-        this.props.onSelectedSampleChanged(this.props.selectedIndex, sampleOptions[this.props.selectedIndex]);
+        // when component loaded and no pending email, fill in the payload into editor
+        if (!sessionStorage.getItem('pendingEmail')) {
+            this.onSelectedSampleChanged(sampleOptions[0]);
+        }
     }
 
-    public changeState(item: IDropdownOption) {
-        this.props.onSelectedSampleChanged(item.key as number, sampleOptions[item.key as number]);
+    public onSelectedSampleChanged(fileName: string): void {
+        const samplePath = require(`../../samples/${fileName}.txt`);
+        fetch(samplePath)
+            .then(response => response.json())
+            .then(response => this.props.updateCurrentPayload(JSON.stringify(response, null, '\t')))
+            .catch(error => {
+                this.props.updateCurrentPayload(JSON.stringify(error, null, '\t'));
+            });
     }
 
     public onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -67,47 +69,60 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
             reader.readAsText(e.target.files[0]);
             reader.onload = (event) => {
                 const fileContent: string = (event.target as FileReader).result;
-                this.props.onSampleUploaded(fileContent);
+                this.props.updateCurrentPayload(fileContent);
             };
         }
     }
 
     public handleLogin() {
-        if (this.state.isLoggedIn) {
-            sessionStorage.clear();
-            this.setState({
-                isLoggedIn: false,
-            });
+        if (this.props.isLoggedIn) {
+            window.location.hash = 'logout';
+            handleAuth();
         } else {
-            getAccessToken();
+            window.location.hash = 'login';
+            handleAuth();
         }
     }
 
     public render() {
         const itemsNonFocusable = [
             {
-                key: 'upload',
-                name: 'Load a sample',
-                icon: 'upload',
-                onClick: () => {
-                    if (this.fileUploader) {
-                        this.fileUploader.click();
-                    }
-                }
-            },
-            {
                 key: 'select',
                 name: 'Select a sample',
                 icon: 'dropdown',
-                items: sampleOptions.map((sample, index) => {
+                items: (sampleOptions.map((sample, index) => {
                     return {
                         key: index.toString(),
                         name: sample,
-                        onClick: () => {
-                            this.props.onSelectedSampleChanged(index, sample);
-                        }
+                        onClick: () => this.onSelectedSampleChanged(sample)
                     };
-                })
+                }) as IContextualMenuItem[]).concat([
+                    {
+                        key: 'divider_1',
+                        itemType: ContextualMenuItemType.Divider
+                    },
+                    {
+                        key: 'upload',
+                        name: 'Load a sample',
+                        icon: 'upload',
+                        onClick: () => {
+                            if (this.fileUploader) {
+                                this.fileUploader.click();
+                            }
+                        }
+                    }
+                ])
+            },
+            {
+                key: 'settings',
+                name: 'Options',
+                icon: 'settings',
+                title: !this.props.isLoggedIn ? 'Sign in to view more options' : undefined,
+                disabled: !this.props.isLoggedIn,
+                style: {
+                    pointerEvents: 'auto', // enable tooltip for disabled buttons
+                },
+                onClick: () => this.props.isLoggedIn && this.props.openSidePanel()
             }
         ];
 
@@ -117,6 +132,7 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
                 name: 'Send via email',
                 icon: 'send',
                 onClick: () => {
+                    sessionStorage.setItem('pendingEmail', this.props.payload);
                     const sendEmailFunc = sendEmail.bind(this);
                     sendEmailFunc(this.props.payload);
                 }
@@ -132,8 +148,8 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
             },
             {
                 key: 'auth',
-                icon: this.state.isLoggedIn ? 'SignOut' : 'AADLogo',
-                name: this.state.isLoggedIn ? 'Log out' : 'Log in',
+                icon: this.props.isLoggedIn ? 'SignOut' : 'AADLogo',
+                name: this.props.isLoggedIn ? 'Log out' : 'Log in',
                 onClick: this.handleLogin
             }
         ];
@@ -155,3 +171,20 @@ export default class Header extends React.Component<HeaderProps, HeaderState> {
         );
     }
 }
+
+function mapStateToProps(state: State) {
+    return {
+        isLoggedIn: state.isLoggedIn,
+        payload: state.currentEditingCard.body,
+    };
+}
+
+function mapDispatchToProps(dispatch: Dispatch<State>) {
+    return {
+        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
+        openSidePanel: bindActionCreators(openSidePanel, dispatch)
+    };
+}
+
+export default connect<{}, {}, HeaderReduxProps>(
+    mapStateToProps, mapDispatchToProps)(Header) as React.ComponentClass<{}>;

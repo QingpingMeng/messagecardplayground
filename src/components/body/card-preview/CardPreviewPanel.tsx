@@ -4,11 +4,13 @@ import { MessageCard, InvokeAddInCommandAction } from '../../../utilities/messag
 import { AdaptiveCard, Action, ActionSet, HttpAction } from 'adaptivecards';
 import { defaultCardConfig, initializeHostContainers } from '../../../utilities/host-containers';
 import { actionExecuted, parseElement, anchorClicked, processMarkdown } from '../../../utilities/call-registry';
+import { connect } from 'react-redux';
+import { State } from '../../../reducers/index';
 
-export interface CardPreviewProps {
+export interface CardPreviewReduxProps {
     payload: string;
 }
-export default class CardPreviewPanel extends React.Component<CardPreviewProps> {
+class CardPreviewPanel extends React.Component<CardPreviewReduxProps> {
     private cardPreviewDiv: HTMLDivElement | null;
     public componentDidMount() {
         initializeHostContainers();
@@ -122,3 +124,12 @@ export class ToggleVisibilityAction extends Action {
         this.targetElementIds = json.targetElementIds;
     }
 }
+
+function mapStateToProps(state: State) {
+    return {
+        payload: state.currentEditingCard.body,
+    };
+}
+
+export default connect<{}, {}, CardPreviewReduxProps>(
+    mapStateToProps, null)(CardPreviewPanel) as React.ComponentClass<{}>;

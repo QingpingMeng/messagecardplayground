@@ -1,6 +1,10 @@
 .editor{
     border: 1px solid #eee;
-    overflow: hidden;
+    overflow-y: hidden;
     height:100%;
     width: 100%;
+}
+
+.scrollbar.horizontal{
+    bottom: 20px !important;
 }

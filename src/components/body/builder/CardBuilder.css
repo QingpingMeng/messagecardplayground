@@ -35,19 +35,19 @@ textarea {
         background-color: #EFEFEF;
     }
 
-input.sectionTitle {
+    #builder input.sectionTitle {
     font-size: 17px;
 }
 
-input.activitySubtitle {
+#builder input.activitySubtitle {
     font-weight: 200;
 }
 
-input.factInput.name {
+#builder input.factInput.name {
     font-weight: 600;
 }
 
-input.inputButton {
+#builder input.inputButton {
     display: inline-block;
     margin-right: 20px;
     font-size: 14px;
@@ -76,7 +76,7 @@ div.card-section {
     width: auto;
 }
 
-div.activityGroup, .factsGroup, .imagesGroup, .potentialActions, .action, .actionInput, .actionCardDiv, .heroImageGroup {
+div.activityGroup, .factsGroup, .imagesGroup, .potentialActions, .action, #builder .actionInput, .actionCardDiv, .heroImageGroup {
     border-style: solid;
     border-color: #EAEAEA;
     border-width: 1px;
@@ -87,7 +87,7 @@ div.activityGroup, .factsGroup, .imagesGroup, .potentialActions, .action, .actio
 }
 
 
-    div.activityGroup:hover, .factsGroup:hover, .imagesGroup:hover, .potentialActions:hover, .action:hover, .actionInput:hover, .actionCardDiv:hover, .heroImageGroup:hover {
+    div.activityGroup:hover, .factsGroup:hover, .imagesGroup:hover, .potentialActions:hover, .action:hover, #builder .actionInput:hover, .actionCardDiv:hover, .heroImageGroup:hover {
         box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
     }
 
@@ -121,7 +121,7 @@ div.activityContainer {
     box-sizing: border-box;
 }
 
-input {
+#builder input {
     opacity: 1;
     overflow: hidden;
     width: 98%;
@@ -134,38 +134,10 @@ input {
     display: inline-block;
 }
 
-    input:focus {
+#builder input:focus {
         outline: none;
         border-bottom: 1px solid #464646;
         background-color: #EFEFEF;
-    }
-
-    button {
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        border: none;
-        padding: 4px 10px 5px 10px;
-        min-width: 80px; 
-        text-align: center;
-        vertical-align: middle;  
-        background-color: #0078D7;
-        color: white;  
-        -webkit-user-select: none;   /* Chrome/Safari/Opera */
-        -moz-user-select: none;      /* Firefox */
-        -ms-user-select: none;       /* Internet Explorer/Edge */
-        user-select: none;
-    }
-    
-    button:hover {
-        cursor:pointer;
-        background-color: #005A9E;
-    }
-    
-    button:active {
-        background-color: #004D84;
     }
 
 button.addDeleteElement.addSection {
@@ -227,16 +199,12 @@ div.sectionProperties {
     margin-left: 4px;
 }
 
-input.sectionPropertiesInput {
+#builder input.sectionPropertiesInput {
     width: 49%;
 }
 
 div.activity {
     padding: 5px;
-}
-
-.ms-Button-label {
-    color: #333333;
 }
 
 button.factDelete {
@@ -267,12 +235,12 @@ button.testAdd {
     padding: 5px;
 }
 
-input.imageInput, .factInput {
+#builder input.imageInput, #builder .factInput {
     width: 47%;
     margin-right: 4px;
 }
 
-input.imageInput {
+#builder input.imageInput {
     margin-bottom: 10px;
 }
 
@@ -354,7 +322,7 @@ div.heroImgOptions {
     z-index: 1;
 }
 
-    div.imgOptions > input, div.heroImgOptions > input {
+#builder div.imgOptions > input, #builder div.heroImgOptions > input {
         width: 100%;
         background-color: #EFEFEF;
     }

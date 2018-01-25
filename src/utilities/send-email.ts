@@ -5,7 +5,6 @@ const apiEndpoint = 'https://outlook.office.com/api/v2.0';
 const swal = require('sweetalert2');
 
 export function sendEmail(payload: string): Promise<boolean> {
-    sessionStorage.pendingEmail = payload;
     const payloadObj = JSON.parse(payload);
     payloadObj['@type'] = payloadObj['@type'] || payloadObj.type;
     payloadObj['@context'] = payload['@context'] || 'http://schema.org/extensions';
@@ -22,7 +21,7 @@ export function sendEmail(payload: string): Promise<boolean> {
                     Content:
                     '<html>' +
                     '  <head>' +
-                    '    <script type="application/ld+json">' + payload + '</script>' +
+                    '    <script type="application/ld+json">' + JSON.stringify(payloadObj) + '</script>' +
                     '  </head>' +
                     '  <body>' +
                     // tslint:disable-next-line:max-line-length
@@ -64,12 +63,14 @@ export function sendEmail(payload: string): Promise<boolean> {
                 'The card was successfully sent.',
                 `Check ${sessionStorage.userDisplayName}'s mailbox.`,
                 'success');
+            resolve();
         }).catch((reason) => {
             swal(
                 `Something went wrong, the email couldn't be sent.`,
                 `Error: ${reason.message}`,
                 'error'
             );
+            reject();
         });
     });
 
