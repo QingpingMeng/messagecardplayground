@@ -9,12 +9,13 @@ import { ActionableMessageCard } from '../../../model/actionable_message_card.mo
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
-import { 
-    fetchStoredCard, 
-    closeSidePanel, 
-    deleteCard, 
-    showSidePanelInfo, 
-    updateCurrentEditingCard } from '../../../actions/index';
+import {
+    fetchStoredCard,
+    closeSidePanel,
+    deleteCard,
+    showSidePanelInfo,
+    updateCurrentEditingCard
+} from '../../../actions/index';
 import { ActionButton, PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
@@ -114,12 +115,27 @@ class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
             );
         } else if (this.props.storedCards && this.props.storedCards.length === 0) {
             return (
-                <MessageBar
-                    messageBarType={MessageBarType.info}
-                    isMultiline={false}
-                >
-                    No card found.
-                </MessageBar>
+                this.props.sidePanelMessageBar ?
+                    (
+                        <MessageBar
+                            messageBarType={
+                                this.props.sidePanelMessageBar.type === 'error' ?
+                                    MessageBarType.error :
+                                    MessageBarType.success}
+                            isMultiline={false}
+                        >
+                            {this.props.sidePanelMessageBar.message}
+                        </MessageBar>
+                    )
+                    :
+                    (
+                        <MessageBar
+                            messageBarType={MessageBarType.info}
+                            isMultiline={false}
+                        >
+                            No card found.
+                        </MessageBar>
+                    )
             );
         }
 

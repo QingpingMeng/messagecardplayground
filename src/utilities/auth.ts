@@ -1,6 +1,7 @@
 /* tslint:disable */
 import {debugConfig, prodConfig} from '../config';
 import { store } from '../index';
+import axios from 'axios'
 import { logIn, logOut } from '../actions/index';
 const authEndpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?';
 const config = process.env.NODE_ENV === "production"? prodConfig : debugConfig;
@@ -169,6 +170,7 @@ function handleTokenResponse(hash: string) {
     validateIdToken(function (isValid:boolean) {
         if (isValid) {
             // Redirect to home page
+            axios.defaults.headers.common.Authorization = `Bearer ${sessionStorage.getItem('accessToken')}`;
             window.location.hash = '#';
         } else {
             sessionStorage.clear();

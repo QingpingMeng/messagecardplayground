@@ -20,7 +20,7 @@ export const DELETE_CARD_ERROR = 'DELETE_CARD_ERROR';
 export const SHOW_SIDE_PANEL_INFO = 'SHOW_SIDE_PANEL_INFO';
 export const UPDATE_CURRENT_EDITING_CARD = 'UPDATE_CURRENT_EDITNG_CARD';
 
-export const API_ROOT = 'http://localhost:50188/api'; 
+axios.defaults.baseURL = 'http://localhost:50188/api/';
 
 export type Actions = {
     LOG_IN: {
@@ -138,7 +138,7 @@ function cardFetchSuccess(cards: ActionableMessageCard[]) {
     };
 }
 
-function cardFetchError(info: {message: string, type: string}) {
+function cardFetchError(info: { message: string, type: string }) {
     return {
         type: FETCH_STORED_CARDS_ERROR,
         payload: info,
@@ -191,7 +191,7 @@ function deleteCardSuccess(cardId: string) {
     };
 }
 
-export function showSidePanelInfo(info: {message: string, type: string}) {
+export function showSidePanelInfo(info: { message: string, type: string }) {
     return {
         type: SHOW_SIDE_PANEL_INFO,
         payload: info,
@@ -202,65 +202,38 @@ export function deleteCard(cardId: string, cardName: string) {
     return (dispatch) => {
         dispatch(deleteCardStart(cardId));
         dispatch(showSidePanelInfo(null));
-        fetch(
-            `${API_ROOT}/users/users/cards/${cardId}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
-                },
-            }
-        )
-        .then(() => {
-             dispatch(deleteCardSuccess(cardId));
-             dispatch(showSidePanelInfo({
-                 message: 'Card has been successfully deleted.',
-                 type: 'success'
-             }));
-        })
-        .catch(error => dispatch(showSidePanelInfo({
-            message: 'Failed to delete card. Please try again later.',
-            type: 'error'
-        })));
+        axios.delete(`users/users/cards/${cardId}`)
+            .then(() => {
+                dispatch(deleteCardSuccess(cardId));
+                dispatch(showSidePanelInfo({
+                    message: 'Card has been successfully deleted.',
+                    type: 'success'
+                }));
+            })
+            .catch(error => dispatch(showSidePanelInfo({
+                message: 'Failed to delete card. Please try again later.',
+                type: 'error'
+            })));
     };
 }
 
 export function fetchStoredCard() {
     return (dispatch) => {
         dispatch(isFetchingStoredCards(true));
-        fetch(`${API_ROOT}/users/users/cards`, {
-            headers: {
-                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
-                'Accept': 'application/json',
-            },
-            mode: 'cors',
-        })
-            .then(response => response.json())
-            .then(cards => dispatch(cardFetchSuccess(cards)))
-            .catch(error => dispatch(cardFetchError({ message: error.message, type: 'error' })));
+        axios.get('/users/users/cards')
+            .then(response => dispatch(cardFetchSuccess(response.data)))
+            .catch(() => dispatch(cardFetchError({ message: 'Failed to load cards', type: 'error' })));
     };
 }
 
 export function saveOrUpdateCard(card: ActionableMessageCard) {
     return dispatch => {
         dispatch(cardSaveStart(true));
-        fetch(
-            `${API_ROOT}/users/users/cards/${card.id}`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
-                },
-                body: JSON.stringify(card),
-            })
+        axios.put(`/users/users/cards/${card.id}`, card)
             .then(() => {
                 dispatch(cardSaveSuccess());
                 dispatch(fetchStoredCard());
-                dispatch(updateCurrentEditingCard(Object.assign(card, {isNewCard: false})));
+                dispatch(updateCurrentEditingCard(Object.assign(card, { isNewCard: false })));
             })
             .catch(error => dispatch(cardSaveError(new Error(error.message))));
     };

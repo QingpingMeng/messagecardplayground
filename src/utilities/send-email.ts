@@ -21,7 +21,7 @@ export function sendEmail(payload: string): Promise<boolean> {
                     Content:
                     '<html>' +
                     '  <head>' +
-                    '    <script type="application/ld+json">' + payload + '</script>' +
+                    '    <script type="application/ld+json">' + JSON.stringify(payloadObj) + '</script>' +
                     '  </head>' +
                     '  <body>' +
                     // tslint:disable-next-line:max-line-length
