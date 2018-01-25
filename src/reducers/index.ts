@@ -16,9 +16,11 @@ import {
     DELETE_CARD_SUCCESS,
     SHOW_SIDE_PANEL_INFO,
     UPDATE_CURRENT_EDITING_CARD,
+    SEND_EMAIL_SUCCESS,
+    SEND_EMAIL_ERROR,
+    SEND_EMAIL_START
 }
     from '../actions/index';
-import { handleAuth } from '../utilities/auth';
 
 export type State = {
     readonly editorText: string;
@@ -26,6 +28,7 @@ export type State = {
     readonly isLoggedIn: boolean;
     readonly isFetchingCards: boolean;
     readonly isSavingCard: boolean;
+    readonly isSendingEmail: boolean;
     readonly saveCardError: Error | null;
     readonly isSidePanelOpen: boolean;
     readonly sidePanelMessageBar: { message: string, type: string } | null;
@@ -37,6 +40,7 @@ const initialState: State = {
     storedCards: null,
     isLoggedIn: sessionStorage.getItem('accessToken') ? true : false,
     isFetchingCards: false,
+    isSendingEmail: false,
     isSavingCard: false,
     saveCardError: null,
     isSidePanelOpen: false,
@@ -59,9 +63,10 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             const newCard = Object.assign(new ActionableMessageCard(), state.currentEditingCard, action.payload);
             return Object.assign({}, state, { currentEditingCard: newCard });
         case LOG_OUT:
-            sessionStorage.clear();
+            sessionStorage.removeItem('accessToken');
             return Object.assign({}, state, { isLoggedIn: false });
         case LOG_IN:
+            sessionStorage.setItem('acessToken', action.payload);
             return Object.assign({}, state, { isLoggedIn: true });
         case CLOSE_SIDE_PANEL:
             return Object.assign({}, state, {isSidePanelOpen: false});
@@ -86,6 +91,31 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             });
         case SAVE_CARD_START:
             return Object.assign({}, state, { isSavingCard: action.payload, saveCardError: null });
+        case SEND_EMAIL_SUCCESS:
+            sessionStorage.removeItem('pendingEmail');
+            swal(
+                'The card was successfully sent.',
+                `Check ${sessionStorage.userDisplayName}'s mailbox.`,
+                'success');
+            return {
+                ...state,
+                isSendingEmail: false
+            };
+        case SEND_EMAIL_START:
+            return {
+                ...state,
+                isSendingEmail: true
+            };
+        case SEND_EMAIL_ERROR:
+            swal(
+                `Something went wrong, the email couldn't be sent.`,
+                `Error: ${action.payload}`,
+                'error'
+            );
+            return {
+                ...state,
+                isSendingEmail: false
+            };
         case SHOW_SIDE_PANEL_INFO:
             return Object.assign({}, state, {sidePanelMessageBar: action.payload});
         case DELETE_CARD_START:
@@ -110,7 +140,6 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             );
             return Object.assign({}, state, { isSavingCard: false, saveCardError: action.payload });
         default:
-            handleAuth();
             return Object.assign({}, state, { isLoggedIn: sessionStorage.getItem('accessToken') ? true : false, });
     }
 }

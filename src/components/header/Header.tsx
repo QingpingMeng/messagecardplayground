@@ -2,12 +2,10 @@ import * as React from 'react';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
 import { ContextualMenuItemType, IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
-import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
-import { handleAuth } from '../../utilities/auth';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../reducers/index';
-import { updateCurrentPayload, openSidePanel } from '../../actions/index';
+import { updateCurrentPayload, openSidePanel, logIn, logOut, sendEmail, getAccessToken } from '../../actions/index';
 import { bindActionCreators } from 'redux';
 
 const sampleOptions = [
@@ -32,12 +30,18 @@ const sampleOptions = [
 export interface HeaderReduxProps {
     isLoggedIn: boolean;
     payload: string;
+    isSendingEmail: boolean;
     updateCurrentPayload: (newPayload: string) => void;
     openSidePanel: () => void;
+    logIn: () => void;
+    logOut: () => void;
+    sendEmail: (payload: string) => void;
+    getAccessToken: (token: string) => void;
 }
 
 class Header extends React.Component<HeaderReduxProps> {
     public fileUploader: HTMLInputElement | null;
+
     constructor(props: HeaderReduxProps) {
         super(props);
 
@@ -75,13 +79,7 @@ class Header extends React.Component<HeaderReduxProps> {
     }
 
     public handleLogin() {
-        if (this.props.isLoggedIn) {
-            window.location.hash = 'logout';
-            handleAuth();
-        } else {
-            window.location.hash = 'login';
-            handleAuth();
-        }
+       this.props.isLoggedIn ? this.props.logOut() : this.props.logIn();
     }
 
     public render() {
@@ -126,15 +124,15 @@ class Header extends React.Component<HeaderReduxProps> {
             }
         ];
 
-        const farItemsNonFocusable = [
+        const farItemsNonFocusable: IContextualMenuItem[] = [
             {
                 key: 'sendEmail',
-                name: 'Send via email',
+                name: this.props.isSendingEmail ? 'Sending...' : 'Send via email',
                 icon: 'send',
+                disabled: this.props.isSendingEmail,
                 onClick: () => {
                     sessionStorage.setItem('pendingEmail', this.props.payload);
-                    const sendEmailFunc = sendEmail.bind(this);
-                    sendEmailFunc(this.props.payload);
+                    this.props.sendEmail(this.props.payload);
                 }
             },
             {
@@ -176,13 +174,18 @@ function mapStateToProps(state: State) {
     return {
         isLoggedIn: state.isLoggedIn,
         payload: state.currentEditingCard.body,
+        isSendingEmail: state.isSendingEmail
     };
 }
 
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
         updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
-        openSidePanel: bindActionCreators(openSidePanel, dispatch)
+        openSidePanel: bindActionCreators(openSidePanel, dispatch),
+        logIn: bindActionCreators(logIn, dispatch),
+        logOut: bindActionCreators(logOut, dispatch),
+        sendEmail: bindActionCreators(sendEmail, dispatch),
+        getAccessToken: bindActionCreators(getAccessToken, dispatch)
     };
 }
 

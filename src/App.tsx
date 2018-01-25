@@ -5,15 +5,13 @@ import Footer from './components/footer/Footer';
 import SidePanel from './components/body/panel/SidePanel';
 import EditorPanel from './components/body/editor/EditorPanel';
 import CardPreviewPanel from './components/body/card-preview/CardPreviewPanel';
-import { handleAuth } from './utilities/auth';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 import { initializeIcons } from '@uifabric/icons';
 import { connect } from 'react-redux';
 import { State } from './reducers/index';
 import { Dispatch } from 'redux';
-import { closeSidePanel, updateCurrentEditingCard } from './actions/index';
+import { closeSidePanel, updateCurrentEditingCard, sendEmail } from './actions/index';
 import { bindActionCreators } from 'redux';
-import { sendEmail } from './utilities/send-email';
 import { ActionableMessageCard } from './model/actionable_message_card.model';
 
 export interface AppReduxProps {
@@ -21,19 +19,16 @@ export interface AppReduxProps {
   isLoggedIn: boolean;
   closeSidePanel: () => void;
   updateCurrentEditingCard: (val: ActionableMessageCard) => void;
+  sendEmail: (payload: string) => void;
 }
 
 class App extends React.Component<AppReduxProps> {
   public componentDidMount() {
-    // Do auth work
-    handleAuth();
-
     const pendingEmail = sessionStorage.getItem('pendingEmail');
     // restore payload if any
     if (pendingEmail && this.props.isLoggedIn) {
       this.props.updateCurrentEditingCard(new ActionableMessageCard(null, pendingEmail));
-      const sendEmailFunc = sendEmail.bind(this);
-      sendEmailFunc(pendingEmail).then(() => sessionStorage.removeItem('pendingEmail'));
+      this.props.sendEmail(pendingEmail);
     }
   }
 
@@ -84,6 +79,7 @@ function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
       closeSidePanel: bindActionCreators(closeSidePanel, dispatch),
       updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
+      sendEmail: bindActionCreators(sendEmail, dispatch)
     };
 }
 
