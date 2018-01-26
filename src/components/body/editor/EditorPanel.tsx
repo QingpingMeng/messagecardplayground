@@ -5,7 +5,7 @@ import MonacoEditor from 'react-monaco-editor';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
-import { updateCurrentPayload, saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/index';
+import { updateCurrentPayload, saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/cards';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
@@ -189,6 +189,7 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
                         <Spinner size={SpinnerSize.small} label="Saving..." /> :
                         null}
                     <MonacoEditor
+                        key={`${this.state.width}-${this.state.height}`} 
                         ref={monaco => this.editor = monaco ? monaco.editor : null}
                         value={this.props.currentEditingCard.body || ''}
                         width={this.state.width}

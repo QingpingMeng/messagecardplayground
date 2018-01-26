@@ -2,13 +2,14 @@ import * as React from 'react';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
 import { ContextualMenuItemType, IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
-import { sendEmail } from '../../utilities/send-email';
 import { postToWebhook } from '../../utilities/post-to-webhook';
-import { handleAuth } from '../../utilities/auth';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../reducers/index';
-import { updateCurrentPayload, openSidePanel } from '../../actions/index';
+import { updateCurrentPayload } from '../../actions/cards';
+import { logIn, logOut, getAccessToken } from '../../actions/auth';
 import { bindActionCreators } from 'redux';
+import { sendEmail } from '../../actions/restClient';
+import { openSidePanel } from '../../actions/sidePanel';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -32,12 +33,18 @@ const sampleOptions = [
 export interface HeaderReduxProps {
     isLoggedIn: boolean;
     payload: string;
+    isSendingEmail: boolean;
     updateCurrentPayload: (newPayload: string) => void;
     openSidePanel: () => void;
+    logIn: () => void;
+    logOut: () => void;
+    sendEmail: (payload: string) => void;
+    getAccessToken: (token: string) => void;
 }
 
 class Header extends React.Component<HeaderReduxProps> {
     public fileUploader: HTMLInputElement | null;
+
     constructor(props: HeaderReduxProps) {
         super(props);
 
@@ -75,13 +82,7 @@ class Header extends React.Component<HeaderReduxProps> {
     }
 
     public handleLogin() {
-        if (this.props.isLoggedIn) {
-            window.location.hash = 'logout';
-            handleAuth();
-        } else {
-            window.location.hash = 'login';
-            handleAuth();
-        }
+       this.props.isLoggedIn ? this.props.logOut() : this.props.logIn();
     }
 
     public render() {
@@ -114,10 +115,10 @@ class Header extends React.Component<HeaderReduxProps> {
                 ])
             },
             {
-                key: 'settings',
-                name: 'Options',
+                key: 'workspaces',
+                name: 'Workspaces',
                 icon: 'settings',
-                title: !this.props.isLoggedIn ? 'Sign in to view more options' : undefined,
+                title: !this.props.isLoggedIn ? 'Sign in required' : undefined,
                 disabled: !this.props.isLoggedIn,
                 style: {
                     pointerEvents: 'auto', // enable tooltip for disabled buttons
@@ -126,15 +127,15 @@ class Header extends React.Component<HeaderReduxProps> {
             }
         ];
 
-        const farItemsNonFocusable = [
+        const farItemsNonFocusable: IContextualMenuItem[] = [
             {
                 key: 'sendEmail',
-                name: 'Send via email',
+                name: this.props.isSendingEmail ? 'Sending...' : 'Send via email',
                 icon: 'send',
+                disabled: this.props.isSendingEmail,
                 onClick: () => {
                     sessionStorage.setItem('pendingEmail', this.props.payload);
-                    const sendEmailFunc = sendEmail.bind(this);
-                    sendEmailFunc(this.props.payload);
+                    this.props.sendEmail(this.props.payload);
                 }
             },
             {
@@ -176,13 +177,18 @@ function mapStateToProps(state: State) {
     return {
         isLoggedIn: state.isLoggedIn,
         payload: state.currentEditingCard.body,
+        isSendingEmail: state.isSendingEmail
     };
 }
 
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
         updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
-        openSidePanel: bindActionCreators(openSidePanel, dispatch)
+        openSidePanel: bindActionCreators(openSidePanel, dispatch),
+        logIn: bindActionCreators(logIn, dispatch),
+        logOut: bindActionCreators(logOut, dispatch),
+        sendEmail: bindActionCreators(sendEmail, dispatch),
+        getAccessToken: bindActionCreators(getAccessToken, dispatch)
     };
 }
 

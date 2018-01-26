@@ -11,11 +11,14 @@ import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
 import {
     fetchStoredCard,
-    closeSidePanel,
     deleteCard,
-    showSidePanelInfo,
     updateCurrentEditingCard
-} from '../../../actions/index';
+} from '../../../actions/cards';
+import {
+    closeSidePanel,
+    showSidePanelInfo,
+} from '../../../actions/sidePanel';
+
 import { ActionButton, PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
