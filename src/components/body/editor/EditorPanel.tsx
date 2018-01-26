@@ -189,7 +189,6 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
                         <Spinner size={SpinnerSize.small} label="Saving..." /> :
                         null}
                     <MonacoEditor
-                        key={`${this.state.width}-${this.state.height}`} 
                         ref={monaco => this.editor = monaco ? monaco.editor : null}
                         value={this.props.currentEditingCard.body || ''}
                         width={this.state.width}

@@ -25,15 +25,6 @@ export interface AppReduxProps {
 }
 
 class App extends React.Component<AppReduxProps> {
-  public componentDidMount() {
-    const pendingEmail = sessionStorage.getItem('pendingEmail');
-    // restore payload if any
-    if (pendingEmail && this.props.isLoggedIn) {
-      this.props.updateCurrentEditingCard(new ActionableMessageCard(null, pendingEmail));
-      this.props.sendEmail(pendingEmail);
-    }
-  }
-
   public componentWillMount() {
     // Register icons and pull the fonts from the default SharePoint cdn:
     initializeIcons(undefined, { disableWarnings: true });

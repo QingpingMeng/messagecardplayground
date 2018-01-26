@@ -54,10 +54,7 @@ class Header extends React.Component<HeaderReduxProps> {
     }
 
     public componentDidMount() {
-        // when component loaded and no pending email, fill in the payload into editor
-        if (!sessionStorage.getItem('pendingEmail')) {
             this.onSelectedSampleChanged(sampleOptions[0]);
-        }
     }
 
     public onSelectedSampleChanged(fileName: string): void {
@@ -134,7 +131,6 @@ class Header extends React.Component<HeaderReduxProps> {
                 icon: 'send',
                 disabled: this.props.isSendingEmail,
                 onClick: () => {
-                    sessionStorage.setItem('pendingEmail', this.props.payload);
                     this.props.sendEmail(this.props.payload);
                 }
             },

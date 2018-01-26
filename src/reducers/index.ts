@@ -95,7 +95,6 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
         case SAVE_CARD_START:
             return Object.assign({}, state, { isSavingCard: action.payload, saveCardError: null });
         case SEND_EMAIL_SUCCESS:
-            sessionStorage.removeItem('pendingEmail');
             swal(
                 'The card was successfully sent.',
                 `Check ${localStorage.userDisplayName}'s mailbox.`,
