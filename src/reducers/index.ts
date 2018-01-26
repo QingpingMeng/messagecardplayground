@@ -64,6 +64,9 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             return Object.assign({}, state, { currentEditingCard: newCard });
         case LOG_OUT:
             localStorage.removeItem('accessToken');
+            localStorage.removeItem('userDisplayName');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userObjectId');
             return Object.assign({}, state, { isLoggedIn: false });
         case LOG_IN:
             localStorage.setItem('accessToken', action.payload);
