@@ -3,6 +3,7 @@ import { LOG_IN, LOG_IN_ERROR, Actions, LOG_OUT } from './index';
 import axios from 'axios';
 import { store } from '../index';
 import { debugConfig, prodConfig } from '../config';
+import { getUserEmailAddress } from './restClient';
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
 
@@ -24,10 +25,13 @@ export function logIn() {
                 return getAccessToken();
             })
             .then((accessToken) => {
-                dispatch({
-                    type: LOG_IN,
-                    payload: accessToken
-                });
+                return getUserEmailAddress()
+                    .then(() => {
+                        dispatch({
+                            type: LOG_IN,
+                            payload: accessToken
+                        });
+                    });
             })
             .catch(error => {
                 dispatch({

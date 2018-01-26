@@ -7,5 +7,5 @@ export const debugConfig = {
 export const prodConfig = {
     redirectUri : 'https://qms3.blob.core.windows.net/messagecard-playground/index.html',
     appId : 'aff03472-97bb-4cbd-8b7b-9a5f7615c13e',
-    apiRootUri : 'http://actionsplayground.azurewebsites.net',
+    apiRootUri : 'http://actionsplayground.azurewebsites.net/api',
 };
