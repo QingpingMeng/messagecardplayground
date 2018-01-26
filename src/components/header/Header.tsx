@@ -5,8 +5,11 @@ import { ContextualMenuItemType, IContextualMenuItem } from 'office-ui-fabric-re
 import { postToWebhook } from '../../utilities/post-to-webhook';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../reducers/index';
-import { updateCurrentPayload, openSidePanel, logIn, logOut, sendEmail, getAccessToken } from '../../actions/index';
+import { updateCurrentPayload } from '../../actions/cards';
+import { logIn, logOut, getAccessToken } from '../../actions/auth';
 import { bindActionCreators } from 'redux';
+import { sendEmail } from '../../actions/restClient';
+import { openSidePanel } from '../../actions/sidePanel';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -112,10 +115,10 @@ class Header extends React.Component<HeaderReduxProps> {
                 ])
             },
             {
-                key: 'settings',
-                name: 'Options',
+                key: 'workspaces',
+                name: 'Workspaces',
                 icon: 'settings',
-                title: !this.props.isLoggedIn ? 'Sign in to view more options' : undefined,
+                title: !this.props.isLoggedIn ? 'Sign in required' : undefined,
                 disabled: !this.props.isLoggedIn,
                 style: {
                     pointerEvents: 'auto', // enable tooltip for disabled buttons

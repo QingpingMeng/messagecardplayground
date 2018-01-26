@@ -10,9 +10,11 @@ import { initializeIcons } from '@uifabric/icons';
 import { connect } from 'react-redux';
 import { State } from './reducers/index';
 import { Dispatch } from 'redux';
-import { closeSidePanel, updateCurrentEditingCard, sendEmail } from './actions/index';
 import { bindActionCreators } from 'redux';
 import { ActionableMessageCard } from './model/actionable_message_card.model';
+import { closeSidePanel } from './actions/sidePanel';
+import { updateCurrentEditingCard } from './actions/cards';
+import { sendEmail } from './actions/restClient';
 
 export interface AppReduxProps {
   isSidePanelOpen: boolean;

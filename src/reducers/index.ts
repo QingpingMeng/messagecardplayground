@@ -38,7 +38,7 @@ export type State = {
 const initialState: State = {
     editorText: '',
     storedCards: null,
-    isLoggedIn: sessionStorage.getItem('accessToken') ? true : false,
+    isLoggedIn: localStorage.getItem('accessToken') ? true : false,
     isFetchingCards: false,
     isSendingEmail: false,
     isSavingCard: false,
@@ -63,10 +63,10 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             const newCard = Object.assign(new ActionableMessageCard(), state.currentEditingCard, action.payload);
             return Object.assign({}, state, { currentEditingCard: newCard });
         case LOG_OUT:
-            sessionStorage.removeItem('accessToken');
+            localStorage.removeItem('accessToken');
             return Object.assign({}, state, { isLoggedIn: false });
         case LOG_IN:
-            sessionStorage.setItem('acessToken', action.payload);
+            localStorage.setItem('accessToken', action.payload);
             return Object.assign({}, state, { isLoggedIn: true });
         case CLOSE_SIDE_PANEL:
             return Object.assign({}, state, {isSidePanelOpen: false});
@@ -140,7 +140,7 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             );
             return Object.assign({}, state, { isSavingCard: false, saveCardError: action.payload });
         default:
-            return Object.assign({}, state, { isLoggedIn: sessionStorage.getItem('accessToken') ? true : false, });
+            return Object.assign({}, state, { isLoggedIn: localStorage.getItem('accessToken') ? true : false, });
     }
 }
 

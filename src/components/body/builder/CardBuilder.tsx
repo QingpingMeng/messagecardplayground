@@ -6,7 +6,7 @@ import { section } from '../../../utilities/cardBuilder/cardSection';
 import 'office-ui-fabric-react/dist/css/fabric.min.css';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
-import { updateCurrentPayload } from '../../../actions/index';
+import { updateCurrentPayload } from '../../../actions/cards';
 import { bindActionCreators } from 'redux';
 
 export interface CardBuilderReduxProps {
