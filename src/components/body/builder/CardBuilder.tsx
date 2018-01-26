@@ -6,12 +6,13 @@ import { section } from '../../../utilities/cardBuilder/cardSection';
 import 'office-ui-fabric-react/dist/css/fabric.min.css';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
-import { updateCurrentPayload } from '../../../actions/cards';
+import { updateCurrentEditingCard } from '../../../actions/cards';
 import { bindActionCreators } from 'redux';
+import { ActionableMessageCard } from '../../../model/actionable_message_card.model';
 
 export interface CardBuilderReduxProps {
-    payload: string;
-    updateCurrentPayload: (payload: string) => void;
+    currentEditingCard: ActionableMessageCard;
+    updateCurrentEditingCard: (card: ActionableMessageCard) => void;
 }
 
 class CardBuilder extends React.Component<CardBuilderReduxProps> {
@@ -28,9 +29,9 @@ class CardBuilder extends React.Component<CardBuilderReduxProps> {
     }
 
     public componentDidMount() {
-        if (this.props.payload) {
+        if (this.props.currentEditingCard.body) {
             this.builder = new cardBuilder();
-            this.builder.loadFromJSON(this.props.payload);
+            this.builder.loadFromJSON(this.props.currentEditingCard.body);
             this.builder.render();
         }
 
@@ -71,14 +72,19 @@ class CardBuilder extends React.Component<CardBuilderReduxProps> {
     }
 
     public componentDidUpdate() {
-        if (this.props.payload !== this.builder.cardToJson()) {
-            this.builder.loadFromJSON(this.props.payload);
+        if (this.props.currentEditingCard.body !== this.builder.cardToJson()) {
+            this.builder.loadFromJSON(this.props.currentEditingCard.body);
             this.builder.render();
         }
     }
 
     private onCardUpdated(e: Event | null): void {
-        this.props.updateCurrentPayload(this.builder.cardToJson());
+        this.props.updateCurrentEditingCard(Object.assign(
+            {},
+            this.props.currentEditingCard,
+            {
+                body: this.builder.cardToJson()
+            }));
         if (e && e.target instanceof HTMLInputElement) {
             const input = e.target as HTMLInputElement;
             input.focus();
@@ -100,13 +106,13 @@ class CardBuilder extends React.Component<CardBuilderReduxProps> {
 
 function mapStateToProps(state: State) {
     return {
-        payload: state.currentEditingCard.body,
+        currentEditingCard: state.currentEditingCard,
     };
 }
 
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
-        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch)
+        updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch)
     };
 }
 

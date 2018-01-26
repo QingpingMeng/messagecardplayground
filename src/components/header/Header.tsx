@@ -5,11 +5,12 @@ import { ContextualMenuItemType, IContextualMenuItem } from 'office-ui-fabric-re
 import { postToWebhook } from '../../utilities/post-to-webhook';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../reducers/index';
-import { updateCurrentPayload } from '../../actions/cards';
+import { updateCurrentEditingCard } from '../../actions/cards';
 import { logIn, logOut, getAccessToken } from '../../actions/auth';
 import { bindActionCreators } from 'redux';
 import { sendEmail } from '../../actions/restClient';
 import { openSidePanel } from '../../actions/sidePanel';
+import { ActionableMessageCard } from '../../model/actionable_message_card.model';
 
 const sampleOptions = [
     'Illustration of the full card format',
@@ -32,9 +33,9 @@ const sampleOptions = [
 
 export interface HeaderReduxProps {
     isLoggedIn: boolean;
-    payload: string;
+    currentEditingCard: ActionableMessageCard;
     isSendingEmail: boolean;
-    updateCurrentPayload: (newPayload: string) => void;
+    updateCurrentEditingCard: (card: ActionableMessageCard) => void;
     openSidePanel: () => void;
     logIn: () => void;
     logOut: () => void;
@@ -54,16 +55,30 @@ class Header extends React.Component<HeaderReduxProps> {
     }
 
     public componentDidMount() {
-            this.onSelectedSampleChanged(sampleOptions[0]);
+        this.onSelectedSampleChanged(sampleOptions[0]);
     }
 
     public onSelectedSampleChanged(fileName: string): void {
         const samplePath = require(`../../samples/${fileName}.txt`);
         fetch(samplePath)
             .then(response => response.json())
-            .then(response => this.props.updateCurrentPayload(JSON.stringify(response, null, '\t')))
+            .then(response => this.props.updateCurrentEditingCard(
+                Object.assign(
+                    {},
+                    this.props.currentEditingCard,
+                    {
+                        body: JSON.stringify(response, null, '\t')
+                    }
+                )
+            ))
             .catch(error => {
-                this.props.updateCurrentPayload(JSON.stringify(error, null, '\t'));
+                this.props.updateCurrentEditingCard(Object.assign(
+                    {},
+                    this.props.currentEditingCard,
+                    {
+                        body: JSON.stringify(error, null, '\t')
+                    }
+                ));
             });
     }
 
@@ -73,7 +88,13 @@ class Header extends React.Component<HeaderReduxProps> {
             reader.readAsText(e.target.files[0]);
             reader.onload = (event) => {
                 const fileContent: string = (event.target as FileReader).result;
-                this.props.updateCurrentPayload(fileContent);
+                this.props.updateCurrentEditingCard(Object.assign(
+                    {},
+                    this.props.currentEditingCard,
+                    {
+                        body: fileContent
+                    }
+                ));
             };
         }
     }
@@ -131,7 +152,7 @@ class Header extends React.Component<HeaderReduxProps> {
                 icon: 'send',
                 disabled: this.props.isSendingEmail,
                 onClick: () => {
-                    this.props.sendEmail(this.props.payload);
+                    this.props.sendEmail(this.props.currentEditingCard.body);
                 }
             },
             {
@@ -140,7 +161,7 @@ class Header extends React.Component<HeaderReduxProps> {
                 icon: 'share',
                 onClick: () => {
                     const postToWebhookFunc = postToWebhook.bind(this);
-                    postToWebhookFunc(this.props.payload);
+                    postToWebhookFunc(this.props.currentEditingCard.body);
                 }
             },
             {
@@ -172,14 +193,14 @@ class Header extends React.Component<HeaderReduxProps> {
 function mapStateToProps(state: State) {
     return {
         isLoggedIn: state.isLoggedIn,
-        payload: state.currentEditingCard.body,
+        currentEditingCard: state.currentEditingCard,
         isSendingEmail: state.isSendingEmail
     };
 }
 
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
-        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
+        updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
         openSidePanel: bindActionCreators(openSidePanel, dispatch),
         logIn: bindActionCreators(logIn, dispatch),
         logOut: bindActionCreators(logOut, dispatch),

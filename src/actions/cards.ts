@@ -1,8 +1,6 @@
 import axios from 'axios';
 import { 
     UPDATE_CURRENT_EDITING_CARD, 
-    UPDATE_CURRENT_PAYLOAD, 
-    Actions, 
     FETCH_STORED_CARDS_START, 
     FETCH_STORED_CARDS_SUCCESS, 
     FETCH_STORED_CARDS_ERROR, 
@@ -14,17 +12,28 @@ import {
 import { ActionableMessageCard } from '../model/actionable_message_card.model';
 import { showSidePanelInfo } from './sidePanel';
 
-export function updateCurrentPayload(newPayload: string): Actions[keyof Actions] {
-    return {
-        type: UPDATE_CURRENT_PAYLOAD,
-        payload: newPayload
-    };
-}
-
 export function updateCurrentEditingCard(card: ActionableMessageCard) {
-    return {
-        type: UPDATE_CURRENT_EDITING_CARD,
-        payload: card,
+    return dispatch => {
+        if (card.body) {
+            dispatch({
+                type: UPDATE_CURRENT_EDITING_CARD,
+                payload: card,
+            });
+        } else {
+            getCard(card.id)
+                .then(newCard => {
+                    dispatch({
+                        type: UPDATE_CURRENT_EDITING_CARD,
+                        payload: newCard,
+                    });
+                })
+                .catch(error => {
+                    dispatch({
+                        type: UPDATE_CURRENT_EDITING_CARD,
+                        payload: error,
+                    });
+                });
+        }
     };
 }
 
@@ -67,6 +76,16 @@ function cardSaveError(error: Error) {
         type: SAVE_CARD_ERROR,
         payload: error,
     };
+}
+
+export function getCard(cardId: string): Promise<ActionableMessageCard | null> {
+    return axios.get(`users/${localStorage.getItem('userObjectId')}/cards/${cardId}`)
+        .then(response => {
+            return Promise.resolve({...response.data.cards[0], isNewCard: false});
+        })
+        .catch((error) => {
+            return Promise.reject(null);
+        });
 }
 
 export function deleteCard(cardId: string, cardName: string) {

@@ -5,7 +5,7 @@ import MonacoEditor from 'react-monaco-editor';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
-import { updateCurrentPayload, saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/cards';
+import { saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/cards';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
@@ -21,7 +21,6 @@ export interface EditorPanelState {
 }
 
 export interface EditorPanelReduxProps {
-    updateCurrentPayload: (newVal: string) => void;
     updateCurrentEditingCard: (newCard: ActionableMessageCard) => void;
     currentEditingCard: ActionableMessageCard;
     isSavingCard: string;
@@ -220,7 +219,12 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
     }
 
     private onChange(newValue: string, e: monaco.editor.IModelContentChangedEvent): void {
-        this.props.updateCurrentPayload(newValue);
+        this.props.updateCurrentEditingCard(Object.assign(
+            {},
+            this.props.currentEditingCard,
+            {
+                body: newValue
+            }));
     }
 
     private dismissNameDialog() {
@@ -239,7 +243,6 @@ function mapStateToProps(state: State) {
 
 function mapDispatchToProps(dispatch: Dispatch<State>) {
     return {
-        updateCurrentPayload: bindActionCreators(updateCurrentPayload, dispatch),
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
         saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch),
     };
