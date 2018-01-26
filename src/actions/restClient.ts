@@ -29,7 +29,7 @@ export function getUserEmailAddress(): Promise<string> {
                 .then((response) => {
                     localStorage.setItem('userEmail', response.data.EmailAddress);
                     localStorage.setItem('userDisplayName', response.data.DisplayName);
-                    localStorage.setItem('userObjectId', response.data.userObjectId);
+                    localStorage.setItem('userObjectId', response.data.Id);
                     resolve(response.data.EmailAddress);
                 })
                 .catch((reason) => {

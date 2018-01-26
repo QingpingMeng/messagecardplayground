@@ -116,5 +116,5 @@ export type Actions = {
     }
 };
 
-const config = process.env.NODE_ENV === 'production'? prodConfig : debugConfig;
+const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
 axios.defaults.baseURL = config.apiRootUri;
