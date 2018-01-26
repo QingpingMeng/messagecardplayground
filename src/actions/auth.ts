@@ -66,7 +66,6 @@ export function getAccessToken(forceRefresh?: boolean): Promise<string> {
 }
 
 export function logOut(): Actions[keyof Actions] {
-    userAgentApplication.logout();
     return {
         type: LOG_OUT
     };
