@@ -2,9 +2,12 @@ import { UserAgentApplication } from 'msal';
 import { LOG_IN, LOG_IN_ERROR, Actions, LOG_OUT } from './index';
 import axios from 'axios';
 import { store } from '../index';
+import { debugConfig, prodConfig } from '../config';
+
+const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
 
 const applicationConfig = {
-    clientID: '79f4b7c4-4b00-4f5d-a84b-e92cdf6ffeca',
+    clientID: config.appId,
     graphScopes: ['user.read', 'mail.send', 'openid', 'profile']
 };
 
@@ -35,9 +38,9 @@ export function logIn() {
     };
 }
 
-export function getAccessToken(successCallback?: (accessToken: string) => void): Promise<string> {
+export function getAccessToken(forceRefresh?: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
-        if (localStorage.getItem('accessToken')) {
+        if (localStorage.getItem('accessToken') && !forceRefresh) {
             axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('accessToken')}`;
             resolve(localStorage.getItem('accessToken'));
         } else {

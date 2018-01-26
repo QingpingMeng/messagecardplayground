@@ -5,16 +5,31 @@ import { getAccessToken } from './auth';
 const apiEndpoint = 'https://outlook.office.com/api/v2.0';
 axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('accessToken')}`;
 
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (!error.config.__isRetryRequest) {
+            return getAccessToken(true).then(() => {
+                error.config.__isRetryRequest = true;
+                return axios(error.config);
+            });
+        } else {
+            return Promise.reject(error);
+        }
+    }
+);
+
 export function getUserEmailAddress(): Promise<string> {
     const getUserEmailAddressPromise = new Promise<string>((resolve, reject) => {
-        if (localStorage.userEmail) {
+        if (localStorage.userEmail && localStorage.userObjectId) {
             resolve(localStorage.userEmail);
         } else {
             // Call the Outlook API /Me to get user email address
             axios.get(`${apiEndpoint}/Me`)
                 .then((response) => {
                     localStorage.setItem('userEmail', response.data.EmailAddress);
-                    localStorage.setItem('userDisplayName', response.data.userDisplayName);
+                    localStorage.setItem('userDisplayName', response.data.DisplayName);
+                    localStorage.setItem('userObjectId', response.data.userObjectId);
                     resolve(response.data.EmailAddress);
                 })
                 .catch((reason) => {

@@ -95,7 +95,7 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             sessionStorage.removeItem('pendingEmail');
             swal(
                 'The card was successfully sent.',
-                `Check ${sessionStorage.userDisplayName}'s mailbox.`,
+                `Check ${localStorage.userDisplayName}'s mailbox.`,
                 'success');
             return {
                 ...state,

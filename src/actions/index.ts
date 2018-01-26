@@ -1,5 +1,6 @@
 import { ActionableMessageCard } from '../model/actionable_message_card.model';
 import axios from 'axios';
+import {debugConfig, prodConfig} from '../config';
 
 export const LOG_IN = 'LOG_IN';
 export const LOG_OUT = 'LOG_OUT';
@@ -115,4 +116,5 @@ export type Actions = {
     }
 };
 
-axios.defaults.baseURL = 'http://localhost:50188/api/';
+const config = process.env.NODE_ENV === 'production'? prodConfig : debugConfig;
+axios.defaults.baseURL = config.apiRootUri;

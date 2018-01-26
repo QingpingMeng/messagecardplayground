@@ -1,6 +1,5 @@
 import { OPEN_SIDE_PANEL, CLOSE_SIDE_PANEL, SHOW_SIDE_PANEL_INFO } from './index';
 
-
 export function openSidePanel() {
     return {
         type: OPEN_SIDE_PANEL
