@@ -76,7 +76,7 @@ export function deleteCard(cardId: string, cardName: string) {
             payload: cardId
         });
         dispatch(showSidePanelInfo(null));
-        axios.delete(`users/users/cards/${cardId}`)
+        axios.delete(`users/${localStorage.getItem('userObjectId')}/cards/${cardId}`)
             .then(() => {
                 dispatch({
                     type: DELETE_CARD_SUCCESS,
@@ -97,7 +97,7 @@ export function deleteCard(cardId: string, cardName: string) {
 export function fetchStoredCard() {
     return (dispatch) => {
         dispatch(isFetchingStoredCards(true));
-        axios.get('/users/users/cards')
+        axios.get(`/users/${localStorage.getItem('userObjectId')}/cards`)
             .then(response => dispatch(cardFetchSuccess(response.data.cards)))
             .catch((error) => dispatch(cardFetchError(
                 { message: 'Failed to load cards. ' + error.message , 
@@ -108,7 +108,7 @@ export function fetchStoredCard() {
 export function saveOrUpdateCard(card: ActionableMessageCard) {
     return dispatch => {
         dispatch(cardSaveStart(true));
-        axios.put(`/users/users/cards/${card.id}`, card)
+        axios.put(`/users/${localStorage.getItem('userObjectId')}/cards/${card.id}`, card)
             .then(() => {
                 dispatch(cardSaveSuccess());
                 dispatch(fetchStoredCard());
