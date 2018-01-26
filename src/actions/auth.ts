@@ -4,7 +4,7 @@ import axios from 'axios';
 import { store } from '../index';
 
 const applicationConfig = {
-    clientID: 'aff03472-97bb-4cbd-8b7b-9a5f7615c13e',
+    clientID: '79f4b7c4-4b00-4f5d-a84b-e92cdf6ffeca',
     graphScopes: ['user.read', 'mail.send', 'openid', 'profile']
 };
 

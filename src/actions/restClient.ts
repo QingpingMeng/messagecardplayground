@@ -3,6 +3,7 @@ import axios from 'axios';
 import { getAccessToken } from './auth';
 
 const apiEndpoint = 'https://outlook.office.com/api/v2.0';
+axios.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('accessToken')}`;
 
 export function getUserEmailAddress(): Promise<string> {
     const getUserEmailAddressPromise = new Promise<string>((resolve, reject) => {
