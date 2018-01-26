@@ -58,6 +58,7 @@ export function getAccessToken(forceRefresh?: boolean): Promise<string> {
                     resolve(accessToken);
                 })
                 .catch(() => {
+                    userAgentApplication.acquireTokenRedirect(applicationConfig.graphScopes);
                     reject(new Error('Login required'));
                 });
         }
