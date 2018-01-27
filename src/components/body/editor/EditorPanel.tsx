@@ -1,5 +1,7 @@
 import * as React from 'react';
 import _ from 'lodash';
+import { withRouter, RouteComponentProps } from 'react-router';
+
 import './EditorPanel.css';
 import MonacoEditor from 'react-monaco-editor';
 import { connect, Dispatch } from 'react-redux';
@@ -18,17 +20,24 @@ export interface EditorPanelState {
     width: number;
     height: number;
     isNameDialogHidden: boolean;
-}
-
-export interface EditorPanelReduxProps {
-    updateCurrentEditingCard: (newCard: ActionableMessageCard) => void;
-    currentEditingCard: ActionableMessageCard;
-    isSavingCard: string;
-    saveOrUpdateCard: (card: ActionableMessageCard) => void;
-}
-
-export interface EditorPanelState {
     editorViewName: string;
+}
+
+interface StateProps {
+    currentEditingCard: ActionableMessageCard;
+    isSavingCard: boolean;
+}
+
+interface OwnProps {
+}
+
+interface DispatchFromProps {
+    saveOrUpdateCard: (card: ActionableMessageCard) => void;
+    updateCurrentEditingCard: (newCard: ActionableMessageCard) => void;
+}
+
+interface RouteParam {
+    id: string;
 }
 
 const requireConfig = {
@@ -50,7 +59,9 @@ const options: monaco.editor.IEditorOptions = {
     }
 };
 
-class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelState> {
+type EditorPanelProps = StateProps & OwnProps & DispatchFromProps & RouteComponentProps<RouteParam>;
+
+class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
     private editorContainer: HTMLDivElement | null;
     private editor: monaco.editor.ICodeEditor | null;
     private changeViewButtons = [
@@ -98,9 +109,8 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         }
     }];
 
-    constructor(props: EditorPanelReduxProps) {
+    constructor(props: EditorPanelProps) {
         super(props);
-
         this.state = {
             width: window.innerWidth,
             height: window.innerHeight,
@@ -126,6 +136,7 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
     }
 
     public componentDidMount() {
+        
         this.updateEditorDimension();
 
         window.addEventListener('resize', _.debounce(this.updateEditorDimension.bind(this), 500));
@@ -241,12 +252,11 @@ function mapStateToProps(state: State) {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
     return {
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
         saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch),
     };
 }
 
-export default connect<{}, {}, EditorPanelReduxProps>(
-    mapStateToProps, mapDispatchToProps)(EditorPanel) as React.ComponentClass<{}>;
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorPanel));

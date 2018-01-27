@@ -1,4 +1,10 @@
 import * as React from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom';
 import './App.css';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
@@ -24,7 +30,7 @@ export interface AppReduxProps {
   sendEmail: (payload: string) => void;
 }
 
-class App extends React.Component<AppReduxProps> {
+class App extends React.Component<AppReduxProps, null> {
   public componentWillMount() {
     // Register icons and pull the fonts from the default SharePoint cdn:
     initializeIcons(undefined, { disableWarnings: true });
@@ -34,16 +40,21 @@ class App extends React.Component<AppReduxProps> {
     return (
       <div id="app">
         <div className="header">
-          <Header/>
+          <Header />
         </div>
-        <div className="content">
-          <div className="leftPanel fitOneScreen">
-            <EditorPanel/>
+        <Router>
+          <div className="content">
+            <div className="leftPanel fitOneScreen">
+              <Switch>
+                <Route path="/cards/:id" component={EditorPanel} />
+                <Redirect from="/" to="/cards/new" />
+              </Switch>
+            </div>
+            <div className="rightPanel fitOneScreen">
+              <CardPreviewPanel />
+            </div>
           </div>
-          <div className="rightPanel fitOneScreen">
-            <CardPreviewPanel />
-          </div>
-        </div>
+        </Router>
         <div className="footer">
           <Footer />
         </div>
@@ -61,14 +72,20 @@ class App extends React.Component<AppReduxProps> {
   }
 }
 
-function mapStateToProps(state: State) {
+interface DispatchFromProps {
+  closeSidePanel: () => void;
+  updateCurrentEditingCard: (val: ActionableMessageCard) => void;
+  sendEmail: (payload: string) => void;
+}
+
+const mapStateToProps = (state: State) => {
   return {
     isSidePanelOpen: state.isSidePanelOpen,
     isLoggedIn: state.isLoggedIn,
   };
-}
+};
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
     return {
       closeSidePanel: bindActionCreators(closeSidePanel, dispatch),
       updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
@@ -76,4 +93,4 @@ function mapDispatchToProps(dispatch: Dispatch<State>) {
     };
 }
 
-export default connect<{}, {}, AppReduxProps>(mapStateToProps, mapDispatchToProps)(App) as React.ComponentClass<{}>;
+export default connect(mapStateToProps, mapDispatchToProps)(App) as React.ComponentClass<{}>;

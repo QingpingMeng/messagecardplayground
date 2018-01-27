@@ -23,7 +23,6 @@ import {
     from '../actions/index';
 
 export type State = {
-    readonly editorText: string;
     readonly storedCards: { [id: string]: ActionableMessageCard; };
     readonly isLoggedIn: boolean;
     readonly isFetchingCards: boolean;
@@ -36,7 +35,6 @@ export type State = {
 };
 
 const initialState: State = {
-    editorText: '',
     storedCards: null,
     isLoggedIn: localStorage.getItem('accessToken') ? true : false,
     isFetchingCards: false,

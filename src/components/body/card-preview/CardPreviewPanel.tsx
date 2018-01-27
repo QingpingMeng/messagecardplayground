@@ -131,5 +131,4 @@ function mapStateToProps(state: State) {
     };
 }
 
-export default connect<{}, {}, CardPreviewReduxProps>(
-    mapStateToProps, null)(CardPreviewPanel) as React.ComponentClass<{}>;
+export default connect(mapStateToProps)(CardPreviewPanel) as React.ComponentClass<{}>;

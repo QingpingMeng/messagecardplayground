@@ -29,12 +29,11 @@ export interface SidePanelReduxProps {
     storedCards: ActionableMessageCard[];
     isFetchingCards: boolean;
     sidePanelMessageBar: { message: string, type: string };
-    fetchStoredCards: () => { [id: string]: ActionableMessageCard; };
+    fetchStoredCards: () => {};
     updateCurrentEditingCard: (card: ActionableMessageCard) => void;
     closeSidePanel: () => void;
     deleteCard: (id: string) => void;
-    showSidePanelInfo: (info: {}) => void;
-    fetchCardError: Error;
+    showSidePanelInfo: (info: {message: string, type: string}) => void;
 }
 
 export interface SidePanelState {
@@ -190,7 +189,15 @@ function mapStateToProps(state: State) {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+interface DispatchFromProps {
+    fetchStoredCards: () => {};
+    updateCurrentEditingCard: (card: ActionableMessageCard) => void;
+    closeSidePanel: () => void;
+    deleteCard: (id: string) => void;
+    showSidePanelInfo: (info: {message: string, type: string}) => void;
+}
+
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps  {
     return {
         fetchStoredCards: bindActionCreators(fetchStoredCard, dispatch),
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
@@ -200,5 +207,4 @@ function mapDispatchToProps(dispatch: Dispatch<State>) {
     };
 }
 
-export default connect<{}, {}, SidePanelReduxProps>(
-    mapStateToProps, mapDispatchToProps)(SidePanel) as React.ComponentClass<{}>;
+export default connect(mapStateToProps, mapDispatchToProps)(SidePanel) as React.ComponentClass<{}>;

@@ -88,7 +88,7 @@ export function getCard(cardId: string): Promise<ActionableMessageCard | null> {
         });
 }
 
-export function deleteCard(cardId: string, cardName: string) {
+export function deleteCard(cardId: string) {
     return (dispatch) => {
         dispatch({
             type: DELETE_CARD_START,
@@ -113,7 +113,7 @@ export function deleteCard(cardId: string, cardName: string) {
     };
 }
 
-export function fetchStoredCard() {
+export function fetchStoredCard(): {} {
     return (dispatch) => {
         dispatch(isFetchingStoredCards(true));
         axios.get(`/users/${localStorage.getItem('userObjectId')}/cards`)
