@@ -40,7 +40,7 @@ export interface HeaderReduxProps {
     logIn: () => void;
     logOut: () => void;
     sendEmail: (payload: string) => void;
-    getAccessToken: (token: string) => void;
+    getAccessToken: (forceRefresh?: boolean) => void;
 }
 
 class Header extends React.Component<HeaderReduxProps> {
@@ -198,7 +198,16 @@ function mapStateToProps(state: State) {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+interface DispatchFromProps {
+    updateCurrentEditingCard: (card: ActionableMessageCard) => void;
+    openSidePanel: () => void;
+    logIn: () => void;
+    logOut: () => void;
+    sendEmail: (payload: string) => void;
+    getAccessToken: (forceRefresh?: boolean) => void;
+}
+
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
     return {
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
         openSidePanel: bindActionCreators(openSidePanel, dispatch),
@@ -209,5 +218,4 @@ function mapDispatchToProps(dispatch: Dispatch<State>) {
     };
 }
 
-export default connect<{}, {}, HeaderReduxProps>(
-    mapStateToProps, mapDispatchToProps)(Header) as React.ComponentClass<{}>;
+export default connect(mapStateToProps, mapDispatchToProps)(Header) as React.ComponentClass<{}>;

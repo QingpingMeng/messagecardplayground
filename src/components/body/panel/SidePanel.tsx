@@ -23,27 +23,36 @@ import { ActionButton, PrimaryButton, DefaultButton } from 'office-ui-fabric-rea
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import './SidePanel.css';
+import { withRouter, RouteComponentProps } from 'react-router';
 
-export interface SidePanelReduxProps {
+interface OwnProps {
+
+}
+
+interface StateProps {
     isLoggedIn: boolean;
     storedCards: ActionableMessageCard[];
     isFetchingCards: boolean;
     sidePanelMessageBar: { message: string, type: string };
-    fetchStoredCards: () => { [id: string]: ActionableMessageCard; };
+}
+
+interface DispatchFromProps {
+    fetchStoredCards: () => {};
     updateCurrentEditingCard: (card: ActionableMessageCard) => void;
     closeSidePanel: () => void;
     deleteCard: (id: string) => void;
-    showSidePanelInfo: (info: {}) => void;
-    fetchCardError: Error;
+    showSidePanelInfo: (info: {message: string, type: string}) => void;
 }
 
-export interface SidePanelState {
+interface SidePanelState {
     isConfirmDialogHidden: boolean;
     cardIdToBeDeleted: string | null;
 }
 
-class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
-    public constructor(props: SidePanelReduxProps) {
+type SidePanelProps = OwnProps & StateProps & DispatchFromProps & RouteComponentProps<{}>;
+
+class SidePanel extends React.Component<SidePanelProps, SidePanelState> {
+    public constructor(props: SidePanelProps) {
         super(props);
 
         this.onRenderCell = this.onRenderCell.bind(this);
@@ -161,7 +170,7 @@ class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
                             iconProps={{ iconName: 'openfile' }}
                             text="Open"
                             onClick={() => {
-                                this.props.updateCurrentEditingCard(item);
+                                this.props.history.push(`/cards/${item.id}`);
                                 this.props.closeSidePanel();
                             }}
                         />
@@ -181,7 +190,7 @@ class SidePanel extends React.Component<SidePanelReduxProps, SidePanelState> {
     }
 }
 
-function mapStateToProps(state: State) {
+function mapStateToProps(state: State): StateProps {
     return {
         isLoggedIn: state.isLoggedIn,
         storedCards: _.toArray(state.storedCards),
@@ -190,7 +199,7 @@ function mapStateToProps(state: State) {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps  {
     return {
         fetchStoredCards: bindActionCreators(fetchStoredCard, dispatch),
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
@@ -200,5 +209,4 @@ function mapDispatchToProps(dispatch: Dispatch<State>) {
     };
 }
 
-export default connect<{}, {}, SidePanelReduxProps>(
-    mapStateToProps, mapDispatchToProps)(SidePanel) as React.ComponentClass<{}>;
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SidePanel));
