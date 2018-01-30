@@ -38,11 +38,12 @@ class App extends React.Component<AppReduxProps, null> {
 
   render() {
     return (
-      <div id="app">
-        <div className="header">
-          <Header />
-        </div>
-        <Router>
+      <Router>
+        <div id="app">
+          <div className="header">
+            <Header />
+          </div>
+
           <div className="content">
             <div className="leftPanel fitOneScreen">
               <Switch>
@@ -54,20 +55,21 @@ class App extends React.Component<AppReduxProps, null> {
               <CardPreviewPanel />
             </div>
           </div>
-        </Router>
-        <div className="footer">
-          <Footer />
+
+          <div className="footer">
+            <Footer />
+          </div>
+          <Panel
+            isOpen={this.props.isSidePanelOpen}
+            type={PanelType.medium}
+            // tslint:disable-next-line:jsx-no-lambda
+            onDismiss={() => this.props.closeSidePanel()}
+            headerText="Stored cards"
+          >
+            <SidePanel />
+          </Panel>
         </div>
-        <Panel
-          isOpen={this.props.isSidePanelOpen}
-          type={PanelType.medium}
-          // tslint:disable-next-line:jsx-no-lambda
-          onDismiss={() => this.props.closeSidePanel()}
-          headerText="Stored cards"
-        >
-          <SidePanel />
-        </Panel>
-      </div>
+      </Router>
     );
   }
 }
@@ -86,11 +88,11 @@ const mapStateToProps = (state: State) => {
 };
 
 function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
-    return {
-      closeSidePanel: bindActionCreators(closeSidePanel, dispatch),
-      updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
-      sendEmail: bindActionCreators(sendEmail, dispatch)
-    };
+  return {
+    closeSidePanel: bindActionCreators(closeSidePanel, dispatch),
+    updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
+    sendEmail: bindActionCreators(sendEmail, dispatch)
+  };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App) as React.ComponentClass<{}>;

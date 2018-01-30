@@ -50,12 +50,7 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
     switch (action.type) {
         case UPDATE_CURRENT_PAYLOAD:
             return Object.assign({}, state, {
-                currentEditingCard: Object.assign(
-                    new ActionableMessageCard(),
-                    state.currentEditingCard,
-                    {
-                        body: action.payload
-                    })
+                currentEditingCard: action.payload
             });
         case UPDATE_CURRENT_EDITING_CARD:
             const newCard = Object.assign(new ActionableMessageCard(), state.currentEditingCard, action.payload);

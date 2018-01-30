@@ -15,7 +15,10 @@ const applicationConfig = {
 const userAgentApplication = new UserAgentApplication(
     applicationConfig.clientID,
     null,
-    null
+    null,
+    {
+        redirectUri: config.redirectUri
+    }
 );
 
 export function logIn() {

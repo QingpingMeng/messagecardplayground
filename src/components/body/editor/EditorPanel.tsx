@@ -7,7 +7,7 @@ import MonacoEditor from 'react-monaco-editor';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
-import { saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/cards';
+import { saveOrUpdateCard, updateCurrentEditingCard, getCard } from '../../../actions/cards';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
@@ -64,6 +64,45 @@ type EditorPanelProps = StateProps & OwnProps & DispatchFromProps & RouteCompone
 class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
     private editorContainer: HTMLDivElement | null;
     private editor: monaco.editor.ICodeEditor | null;
+    private nameDialog = (
+        <Dialog
+            hidden={this.state.isNameDialogHidden}
+            // onDismiss={this._closeDialog}
+            dialogContentProps={{
+                type: DialogType.normal,
+                title: 'Name your card',
+            }}
+            modalProps={{
+                isBlocking: true,
+                containerClassName: 'ms-dialogMainOverride'
+            }}
+        >
+            <TextField
+                placeholder="Please enter a name for this card"
+                underlined={true}
+                required={true}
+                onChanged={(value) => this.props.updateCurrentEditingCard(
+                    Object.assign(
+                        this.props.currentEditingCard,
+                        {
+                            name: value
+                        }))}
+            />
+            <DialogFooter>
+                <PrimaryButton
+                    disabled={!this.props.currentEditingCard.name}
+                    onClick={
+                        () => {
+                            this.props.saveOrUpdateCard(this.props.currentEditingCard);
+                            this.dismissNameDialog();
+                        }
+                    }
+                    text="Save"
+                />
+                <DefaultButton onClick={this.dismissNameDialog} text="Cancel" />
+            </DialogFooter>
+        </Dialog>
+    );
     private changeViewButtons = [
         {
             key: 'editor',
@@ -93,7 +132,7 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
         key: 'new',
         name: 'New',
         icon: 'add',
-        onClick: () => this.props.updateCurrentEditingCard(new ActionableMessageCard())
+        onClick: () => this.props.history.push('/cards/new')
     }, {
         key: 'save',
         name: 'Save',
@@ -135,61 +174,26 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
         }
     }
 
-    public componentDidMount() {
-        
-        this.updateEditorDimension();
+    public componentWillUpdate(nextProps: EditorPanelProps) {
+        if (nextProps.location.pathname !== this.props.location.pathname) {
+            this.updateCard(nextProps.match.params.id);
+        }
+    }
 
+    public componentDidMount() {
+        this.updateEditorDimension();
         window.addEventListener('resize', _.debounce(this.updateEditorDimension.bind(this), 500));
+        this.updateCard();
     }
 
     public render() {
         this.farButtonItems[0].name = `Editing card - ${this.props.currentEditingCard.name || 'untitled card'}`;
         this.farButtonItems[2].name = this.props.currentEditingCard.isNewCard ? 'Save' : 'Update';
 
-        const nameDialog = (
-            <Dialog
-                hidden={this.state.isNameDialogHidden}
-                // onDismiss={this._closeDialog}
-                dialogContentProps={{
-                    type: DialogType.normal,
-                    title: 'Name your card',
-                }}
-                modalProps={{
-                    isBlocking: true,
-                    containerClassName: 'ms-dialogMainOverride'
-                }}
-            >
-                <TextField
-                    placeholder="Please enter a name for this card"
-                    underlined={true}
-                    required={true}
-                    onChanged={(value) => this.props.updateCurrentEditingCard(
-                        Object.assign(
-                            this.props.currentEditingCard,
-                            {
-                                name: value
-                            }))}
-                />
-                <DialogFooter>
-                    <PrimaryButton
-                        disabled={!this.props.currentEditingCard.name}
-                        onClick={
-                            () => {
-                                this.props.saveOrUpdateCard(this.props.currentEditingCard);
-                                this.dismissNameDialog();
-                            }
-                        }
-                        text="Save"
-                    />
-                    <DefaultButton onClick={this.dismissNameDialog} text="Cancel" />
-                </DialogFooter>
-            </Dialog>
-        );
-
         if (this.state.editorViewName === 'json') {
             return (
                 <div className="editor" ref={(div) => this.editorContainer = div}>
-                    {nameDialog}
+                    {this.nameDialog}
                     <CommandBar
                         isSearchBoxVisible={false}
                         farItems={this.farButtonItems}
@@ -214,7 +218,7 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
         } else {
             return (
                 <div>
-                    {nameDialog}
+                    {this.nameDialog}
                     <CommandBar
                         isSearchBoxVisible={false}
                         farItems={this.farButtonItems}
@@ -227,6 +231,26 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
                 </div>
             );
         }
+    }
+
+    private updateCard(id?: string) {
+        const cardId = id || this.props.match.params.id;
+        const card = new ActionableMessageCard();
+        // if is valid uuid
+        if (cardId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+            card.id = cardId;
+            getCard(card.id)
+                .then(res => {
+                    this.props.updateCurrentEditingCard(res);
+                })
+                .catch(defaultCard => {
+                    // card not found
+                    this.props.history.push('/cards/new');
+                });
+        } else {
+            this.props.updateCurrentEditingCard(card);
+        }
+
     }
 
     private onChange(newValue: string, e: monaco.editor.IModelContentChangedEvent): void {
@@ -255,7 +279,7 @@ function mapStateToProps(state: State) {
 function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
     return {
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
-        saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch),
+        saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch)
     };
 }
 
