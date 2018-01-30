@@ -6,6 +6,7 @@ import {
   Redirect
 } from 'react-router-dom';
 import './App.css';
+import { debugConfig, prodConfig } from './config';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import SidePanel from './components/body/panel/SidePanel';
@@ -30,6 +31,8 @@ export interface AppReduxProps {
   sendEmail: (payload: string) => void;
 }
 
+const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
+
 class App extends React.Component<AppReduxProps, null> {
   public componentWillMount() {
     // Register icons and pull the fonts from the default SharePoint cdn:
@@ -38,7 +41,7 @@ class App extends React.Component<AppReduxProps, null> {
 
   render() {
     return (
-      <Router>
+      <Router basename={config.baseRouteName}>
         <div id="app">
           <div className="header">
             <Header />
