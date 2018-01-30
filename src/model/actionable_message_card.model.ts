@@ -17,10 +17,7 @@ export class ActionableMessageCard {
         isNewCard: boolean = true) {
         this.id = uuidv4();
         this.name = name;
-        this.body = body || 
-        `{
-        "type": "MessageCard"
-        }`;
+        this.body = body;
         this.headers = headers;
         this.isNewCard = isNewCard;
     }

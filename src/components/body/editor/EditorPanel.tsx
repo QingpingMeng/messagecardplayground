@@ -64,45 +64,6 @@ type EditorPanelProps = StateProps & OwnProps & DispatchFromProps & RouteCompone
 class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
     private editorContainer: HTMLDivElement | null;
     private editor: monaco.editor.ICodeEditor | null;
-    private nameDialog = (
-        <Dialog
-            hidden={this.state.isNameDialogHidden}
-            // onDismiss={this._closeDialog}
-            dialogContentProps={{
-                type: DialogType.normal,
-                title: 'Name your card',
-            }}
-            modalProps={{
-                isBlocking: true,
-                containerClassName: 'ms-dialogMainOverride'
-            }}
-        >
-            <TextField
-                placeholder="Please enter a name for this card"
-                underlined={true}
-                required={true}
-                onChanged={(value) => this.props.updateCurrentEditingCard(
-                    Object.assign(
-                        this.props.currentEditingCard,
-                        {
-                            name: value
-                        }))}
-            />
-            <DialogFooter>
-                <PrimaryButton
-                    disabled={!this.props.currentEditingCard.name}
-                    onClick={
-                        () => {
-                            this.props.saveOrUpdateCard(this.props.currentEditingCard);
-                            this.dismissNameDialog();
-                        }
-                    }
-                    text="Save"
-                />
-                <DefaultButton onClick={this.dismissNameDialog} text="Cancel" />
-            </DialogFooter>
-        </Dialog>
-    );
     private changeViewButtons = [
         {
             key: 'editor',
@@ -190,10 +151,50 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
         this.farButtonItems[0].name = `Editing card - ${this.props.currentEditingCard.name || 'untitled card'}`;
         this.farButtonItems[2].name = this.props.currentEditingCard.isNewCard ? 'Save' : 'Update';
 
+        const nameDialog = (
+            <Dialog
+                hidden={this.state.isNameDialogHidden}
+                // onDismiss={this._closeDialog}
+                dialogContentProps={{
+                    type: DialogType.normal,
+                    title: 'Name your card',
+                }}
+                modalProps={{
+                    isBlocking: true,
+                    containerClassName: 'ms-dialogMainOverride'
+                }}
+            >
+                <TextField
+                    placeholder="Please enter a name for this card"
+                    underlined={true}
+                    required={true}
+                    onChanged={(value) => this.props.updateCurrentEditingCard(
+                        Object.assign(
+                            this.props.currentEditingCard,
+                            {
+                                name: value
+                            }))}
+                />
+                <DialogFooter>
+                    <PrimaryButton
+                        disabled={!this.props.currentEditingCard.name}
+                        onClick={
+                            () => {
+                                this.props.saveOrUpdateCard(this.props.currentEditingCard);
+                                this.dismissNameDialog();
+                            }
+                        }
+                        text="Save"
+                    />
+                    <DefaultButton onClick={this.dismissNameDialog} text="Cancel" />
+                </DialogFooter>
+            </Dialog>
+        );
+
         if (this.state.editorViewName === 'json') {
             return (
                 <div className="editor" ref={(div) => this.editorContainer = div}>
-                    {this.nameDialog}
+                    {nameDialog}
                     <CommandBar
                         isSearchBoxVisible={false}
                         farItems={this.farButtonItems}
@@ -218,7 +219,7 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
         } else {
             return (
                 <div>
-                    {this.nameDialog}
+                    {nameDialog}
                     <CommandBar
                         isSearchBoxVisible={false}
                         farItems={this.farButtonItems}
