@@ -1,11 +1,13 @@
 import * as React from 'react';
 import _ from 'lodash';
+import { withRouter, RouteComponentProps } from 'react-router';
+
 import './EditorPanel.css';
 import MonacoEditor from 'react-monaco-editor';
 import { connect, Dispatch } from 'react-redux';
 import { State } from '../../../reducers/index';
 import { bindActionCreators } from 'redux';
-import { saveOrUpdateCard, updateCurrentEditingCard } from '../../../actions/cards';
+import { saveOrUpdateCard, updateCurrentEditingCard, getCard } from '../../../actions/cards';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
@@ -18,17 +20,24 @@ export interface EditorPanelState {
     width: number;
     height: number;
     isNameDialogHidden: boolean;
-}
-
-export interface EditorPanelReduxProps {
-    updateCurrentEditingCard: (newCard: ActionableMessageCard) => void;
-    currentEditingCard: ActionableMessageCard;
-    isSavingCard: string;
-    saveOrUpdateCard: (card: ActionableMessageCard) => void;
-}
-
-export interface EditorPanelState {
     editorViewName: string;
+}
+
+interface StateProps {
+    currentEditingCard: ActionableMessageCard;
+    isSavingCard: boolean;
+}
+
+interface OwnProps {
+}
+
+interface DispatchFromProps {
+    saveOrUpdateCard: (card: ActionableMessageCard) => void;
+    updateCurrentEditingCard: (newCard: ActionableMessageCard) => void;
+}
+
+interface RouteParam {
+    id: string;
 }
 
 const requireConfig = {
@@ -50,7 +59,9 @@ const options: monaco.editor.IEditorOptions = {
     }
 };
 
-class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelState> {
+type EditorPanelProps = StateProps & OwnProps & DispatchFromProps & RouteComponentProps<RouteParam>;
+
+class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
     private editorContainer: HTMLDivElement | null;
     private editor: monaco.editor.ICodeEditor | null;
     private changeViewButtons = [
@@ -82,7 +93,7 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         key: 'new',
         name: 'New',
         icon: 'add',
-        onClick: () => this.props.updateCurrentEditingCard(new ActionableMessageCard())
+        onClick: () => this.props.history.push('/cards/new')
     }, {
         key: 'save',
         name: 'Save',
@@ -98,9 +109,8 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         }
     }];
 
-    constructor(props: EditorPanelReduxProps) {
+    constructor(props: EditorPanelProps) {
         super(props);
-
         this.state = {
             width: window.innerWidth,
             height: window.innerHeight,
@@ -125,10 +135,16 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         }
     }
 
+    public componentWillUpdate(nextProps: EditorPanelProps) {
+        if (nextProps.location.pathname !== this.props.location.pathname) {
+            this.updateCard(nextProps.match.params.id);
+        }
+    }
+
     public componentDidMount() {
         this.updateEditorDimension();
-
         window.addEventListener('resize', _.debounce(this.updateEditorDimension.bind(this), 500));
+        this.updateCard();
     }
 
     public render() {
@@ -218,6 +234,26 @@ class EditorPanel extends React.Component<EditorPanelReduxProps, EditorPanelStat
         }
     }
 
+    private updateCard(id?: string) {
+        const cardId = id || this.props.match.params.id;
+        const card = new ActionableMessageCard();
+        // if is valid uuid
+        if (cardId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+            card.id = cardId;
+            getCard(card.id)
+                .then(res => {
+                    this.props.updateCurrentEditingCard(res);
+                })
+                .catch(defaultCard => {
+                    // card not found
+                    this.props.history.push('/cards/new');
+                });
+        } else {
+            this.props.updateCurrentEditingCard(card);
+        }
+
+    }
+
     private onChange(newValue: string, e: monaco.editor.IModelContentChangedEvent): void {
         this.props.updateCurrentEditingCard(Object.assign(
             {},
@@ -241,12 +277,11 @@ function mapStateToProps(state: State) {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
     return {
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch),
-        saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch),
+        saveOrUpdateCard: bindActionCreators(saveOrUpdateCard, dispatch)
     };
 }
 
-export default connect<{}, {}, EditorPanelReduxProps>(
-    mapStateToProps, mapDispatchToProps)(EditorPanel) as React.ComponentClass<{}>;
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditorPanel));

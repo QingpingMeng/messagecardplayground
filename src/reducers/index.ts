@@ -23,7 +23,6 @@ import {
     from '../actions/index';
 
 export type State = {
-    readonly editorText: string;
     readonly storedCards: { [id: string]: ActionableMessageCard; };
     readonly isLoggedIn: boolean;
     readonly isFetchingCards: boolean;
@@ -36,7 +35,6 @@ export type State = {
 };
 
 const initialState: State = {
-    editorText: '',
     storedCards: null,
     isLoggedIn: localStorage.getItem('accessToken') ? true : false,
     isFetchingCards: false,
@@ -52,12 +50,7 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
     switch (action.type) {
         case UPDATE_CURRENT_PAYLOAD:
             return Object.assign({}, state, {
-                currentEditingCard: Object.assign(
-                    new ActionableMessageCard(),
-                    state.currentEditingCard,
-                    {
-                        body: action.payload
-                    })
+                currentEditingCard: action.payload
             });
         case UPDATE_CURRENT_EDITING_CARD:
             const newCard = Object.assign(new ActionableMessageCard(), state.currentEditingCard, action.payload);

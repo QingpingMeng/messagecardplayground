@@ -13,27 +13,9 @@ import { ActionableMessageCard } from '../model/actionable_message_card.model';
 import { showSidePanelInfo } from './sidePanel';
 
 export function updateCurrentEditingCard(card: ActionableMessageCard) {
-    return dispatch => {
-        if (card.body) {
-            dispatch({
-                type: UPDATE_CURRENT_EDITING_CARD,
-                payload: card,
-            });
-        } else {
-            getCard(card.id)
-                .then(newCard => {
-                    dispatch({
-                        type: UPDATE_CURRENT_EDITING_CARD,
-                        payload: newCard,
-                    });
-                })
-                .catch(error => {
-                    dispatch({
-                        type: UPDATE_CURRENT_EDITING_CARD,
-                        payload: error,
-                    });
-                });
-        }
+    return {
+        type: UPDATE_CURRENT_EDITING_CARD,
+        payload: card,
     };
 }
 
@@ -81,14 +63,18 @@ function cardSaveError(error: Error) {
 export function getCard(cardId: string): Promise<ActionableMessageCard | null> {
     return axios.get(`users/${localStorage.getItem('userObjectId')}/cards/${cardId}`)
         .then(response => {
-            return Promise.resolve({...response.data.cards[0], isNewCard: false});
+            if (response.data.cards.length > 0) {
+                return Promise.resolve({ ...response.data.cards[0], isNewCard: false });
+            } else {
+                return Promise.reject(null);
+            }
         })
         .catch((error) => {
             return Promise.reject(null);
         });
 }
 
-export function deleteCard(cardId: string, cardName: string) {
+export function deleteCard(cardId: string) {
     return (dispatch) => {
         dispatch({
             type: DELETE_CARD_START,
@@ -113,7 +99,7 @@ export function deleteCard(cardId: string, cardName: string) {
     };
 }
 
-export function fetchStoredCard() {
+export function fetchStoredCard(): {} {
     return (dispatch) => {
         dispatch(isFetchingStoredCards(true));
         axios.get(`/users/${localStorage.getItem('userObjectId')}/cards`)

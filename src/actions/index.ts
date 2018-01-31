@@ -1,6 +1,6 @@
 import { ActionableMessageCard } from '../model/actionable_message_card.model';
 import axios from 'axios';
-import {debugConfig, prodConfig} from '../config';
+import { debugConfig, prodConfig } from '../config';
 
 export const LOG_IN = 'LOG_IN';
 export const LOG_OUT = 'LOG_OUT';

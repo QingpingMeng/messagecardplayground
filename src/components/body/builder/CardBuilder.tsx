@@ -110,11 +110,14 @@ function mapStateToProps(state: State) {
     };
 }
 
-function mapDispatchToProps(dispatch: Dispatch<State>) {
+interface DispatchFromProps {
+    updateCurrentEditingCard: (card: ActionableMessageCard) => void;
+}
+
+function mapDispatchToProps(dispatch: Dispatch<State>): DispatchFromProps {
     return {
         updateCurrentEditingCard: bindActionCreators(updateCurrentEditingCard, dispatch)
     };
 }
 
-export default connect<{}, {}, CardBuilderReduxProps>(
-    mapStateToProps, mapDispatchToProps)(CardBuilder) as React.ComponentClass<{}>;
+export default connect(mapStateToProps, mapDispatchToProps)(CardBuilder) as React.ComponentClass<{}>;
