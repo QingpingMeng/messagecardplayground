@@ -49,6 +49,10 @@ export function sendEmail(payload: string) {
         const payloadObj = JSON.parse(payload);
         payloadObj['@type'] = payloadObj['@type'] || payloadObj.type;
         payloadObj['@context'] = payload['@context'] || 'http://schema.org/extensions';
+        if (!payloadObj['@type']) {
+            return;
+        }
+        const emailScriptType = payloadObj['@type'].toLowerCase() === 'adaptivecard' ? 'adaptivecard' : 'ld';
         getAccessToken()
             .then(() => getUserEmailAddress())
             .then((maillAddress: string) => {
@@ -63,7 +67,8 @@ export function sendEmail(payload: string) {
                         Content:
                             '<html>' +
                             '  <head>' +
-                            '    <script type="application/ld+json">' + JSON.stringify(payloadObj) + '</script>' +
+                            // tslint:disable-next-line:max-line-length
+                            `    <script type="application/${emailScriptType}+json">${JSON.stringify(payloadObj)}</script>` +
                             '  </head>' +
                             '  <body>' +
                             // tslint:disable-next-line:max-line-length
