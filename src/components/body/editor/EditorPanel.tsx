@@ -139,6 +139,11 @@ class EditorPanel extends React.Component<EditorPanelProps, EditorPanelState> {
         if (nextProps.location.pathname !== this.props.location.pathname) {
             this.updateCard(nextProps.match.params.id);
         }
+
+        if (nextProps.currentEditingCard.isNewCard !== this.props.currentEditingCard.isNewCard) {
+            this.props.history
+                .push(`/cards/${nextProps.currentEditingCard.isNewCard ? 'new' : nextProps.currentEditingCard.id}`);
+        }
     }
 
     public componentDidMount() {

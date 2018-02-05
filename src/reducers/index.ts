@@ -118,7 +118,7 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
             curState.storedCards[action.payload].isDeleting = true;
             return curState;
         case DELETE_CARD_SUCCESS:
-            curState = Object.assign({}, state);
+            curState = Object.assign({}, state, {currentEditingCard: new ActionableMessageCard()});
             delete curState.storedCards[action.payload];
             return curState;
         case SAVE_CARD_SUCCESS:
@@ -126,7 +126,14 @@ function playgroundReducer(state: State = initialState, action: Actions[keyof Ac
                 'The card was successfully saved.',
                 null,
                 'success');
-            return Object.assign({}, state, { isSavingCard: false, saveCardError: null });
+            return Object.assign({}, state, { 
+                isSavingCard: false, 
+                saveCardError: null,
+                currentEditingCard: {
+                    ...state.currentEditingCard,
+                    isNewCard: false
+                }
+            });
         case SAVE_CARD_ERROR:
             swal(
                 `Something went wrong, the email couldn't be saved.`,
