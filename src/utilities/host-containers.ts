@@ -49,7 +49,7 @@ export class DesktopHostContainer extends HostContainer {
 
 export var hostContainers: Array<HostContainer> = [];
 
-export var defaultCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
+export const defaultCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
     spacing: {
         small: 10,
         default: 20,
@@ -79,50 +79,50 @@ export var defaultCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
     containerStyles: {
         default: {
             backgroundColor: "#FFFFFF",
-            fontColors: {
+            foregroundColors: {
                 default: {
-                    normal: "#333333",
+                    default: "#333333",
                     subtle: "#EE333333"
                 },
                 accent: {
-                    normal: "#2E89FC",
+                    default: "#2E89FC",
                     subtle: "#882E89FC"
                 },
                 attention: {
-                    normal: "#cc3300",
+                    default: "#cc3300",
                     subtle: "#DDcc3300"
                 },
                 good: {
-                    normal: "#54a254",
+                    default: "#54a254",
                     subtle: "#DD54a254"
                 },
                 warning: {
-                    normal: "#e69500",
+                    default: "#e69500",
                     subtle: "#DDe69500"
                 }
             }
         },
         emphasis: {
             backgroundColor: "#08000000",
-            fontColors: {
+            foregroundColors: {
                 default: {
-                    normal: "#333333",
+                    default: "#333333",
                     subtle: "#EE333333"
                 },
                 accent: {
-                    normal: "#2E89FC",
+                    default: "#2E89FC",
                     subtle: "#882E89FC"
                 },
                 attention: {
-                    normal: "#cc3300",
+                    default: "#cc3300",
                     subtle: "#DDcc3300"
                 },
                 good: {
-                    normal: "#54a254",
+                    default: "#54a254",
                     subtle: "#DD54a254"
                 },
                 warning: {
-                    normal: "#e69500",
+                    default: "#e69500",
                     subtle: "#DDe69500"
                 }
             }
@@ -171,7 +171,7 @@ export var defaultCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
     }
 });
 
-export var compactCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
+export const compactCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
     spacing: {
         small: 10,
         default: 12,
@@ -201,38 +201,38 @@ export var compactCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
     containerStyles: {
         default: {
             backgroundColor: "#EAEAEA",
-            fontColors: {
+            foregroundColors: {
                 default: {
-                    normal: "#333333",
+                    default: "#333333",
                     subtle: "#EE333333"
                 },
                 accent: {
-                    normal: "#2E89FC",
+                    default: "#2E89FC",
                     subtle: "#882E89FC" 
                 },
                 attention: {
-                    normal: "#FFD800",
+                    default: "#FFD800",
                     subtle: "#DDFFD800"
                 },
                 good: {
-                    normal: "#00FF00",
+                    default: "#00FF00",
                     subtle: "#DD00FF00"
                 },
                 warning: {
-                    normal: "#FF0000",
+                    default: "#FF0000",
                     subtle: "#DDFF0000"
                 }
             }
         },
         emphasis: {
             backgroundColor: "#E0E0E0",
-            fontColors: {
+            foregroundColors: {
                 default: {
-                    normal: "#333333",
+                    default: "#333333",
                     subtle: "#EE333333"
                 },
                 accent: {
-                    normal: "#2E89FC",
+                    default: "#2E89FC",
                     subtle: "#882E89FC" 
                 },
                 attention: {
@@ -240,11 +240,11 @@ export var compactCardConfig: Adaptive.HostConfig = new Adaptive.HostConfig({
                     subtle: "#DDFFD800"
                 },
                 good: {
-                    normal: "#00FF00",
+                    default: "#00FF00",
                     subtle: "#DD00FF00"
                 },
                 warning: {
-                    normal: "#FF0000",
+                    default: "#FF0000",
                     subtle: "#DDFF0000"
                 }
             }

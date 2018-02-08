@@ -120,9 +120,9 @@ acorn@^5.0.0:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.2.1.tgz#317ac7821826c22c702d66189ab8359675f135d7"
 
-adaptivecards@^1.0.0-beta9:
-  version "1.0.0-beta9"
-  resolved "https://registry.yarnpkg.com/adaptivecards/-/adaptivecards-1.0.0-beta9.tgz#bc22f61978c58666c8e862c9ad5b4b43b0b61fa8"
+adaptivecards@^1.0.0-ci.20180208.1:
+  version "1.0.0-ci.20180208.1"
+  resolved "https://microsoft.pkgs.visualstudio.com/_packaging/AdaptiveCards/npm/registry/adaptivecards/-/adaptivecards-1.0.0-ci.20180208.1.tgz#9b862290fa41641a9769fbf94b1ca61fed851b25"
 
 address@1.0.3, address@^1.0.1:
   version "1.0.3"

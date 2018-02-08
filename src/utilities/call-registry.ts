@@ -1,5 +1,6 @@
 /* tslint:disable */
-import { Image, Column, Container, Action, OpenUrlAction, SubmitAction, HttpAction } from "adaptivecards";
+import { Image, Column, Container, Action, OpenUrlAction, SubmitAction, HttpAction, Spacing, PaddingDefinition } from "adaptivecards";
+import { getEnumValueOrDefault } from "adaptivecards/lib/utils";
 const md = require('markdown-it')();
 
 export function parseElement(element: any, json: any) {
@@ -16,7 +17,28 @@ export function parseElement(element: any, json: any) {
     }
 
     if (element instanceof Container) {
-        element.bleed = json["bleed"];
+        const jsonPadding = json['padding']
+
+        if (jsonPadding) {
+          if (typeof jsonPadding === 'string') {
+            const uniformPadding = getEnumValueOrDefault(
+              Spacing,
+              jsonPadding,
+              Spacing.None)
+
+            element.padding = new PaddingDefinition(
+              uniformPadding,
+              uniformPadding,
+              uniformPadding,
+              uniformPadding)
+          } else if (typeof jsonPadding === 'object') {
+            element.padding = new PaddingDefinition(
+              getEnumValueOrDefault(Spacing, jsonPadding['top'], Spacing.None),
+              getEnumValueOrDefault(Spacing, jsonPadding['right'], Spacing.None),
+              getEnumValueOrDefault(Spacing, jsonPadding['bottom'], Spacing.None),
+              getEnumValueOrDefault(Spacing, jsonPadding['left'], Spacing.None))
+          }
+        }
     }
 }
 

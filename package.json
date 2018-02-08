@@ -5,7 +5,7 @@
   "dependencies": {
     "@types/react-router": "^4.0.21",
     "@uifabric/icons": "^5.3.0",
-    "adaptivecards": "^1.0.0-beta9",
+    "adaptivecards": "^1.0.0-ci.20180208.1",
     "axios": "^0.17.1",
     "azure-storage-simple": "^0.6.0",
     "base-64": "^0.1.0",
