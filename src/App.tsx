@@ -4,9 +4,10 @@ import './App.css';
 import { debugConfig, prodConfig } from './config';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
-import EditorPanel from './components/body/editor/EditorPanel';
+// import EditorPanel from './components/body/editor/EditorPanel';
 import CardPreviewPanel from './components/body/card-preview/CardPreviewPanel';
 import { initializeIcons } from '@uifabric/icons';
+import Editor from './components/body/editor/Editor';
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
 
@@ -26,7 +27,7 @@ export default class App extends React.Component<{}, null> {
 
                     <div className="left-panel">
                         <Switch>
-                            <Route path="/test/:id?" component={EditorPanel} />
+                            <Route path="/:id?" component={Editor} />
                         </Switch>
                     </div>
                     <div className="right-panel">
