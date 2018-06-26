@@ -138,9 +138,6 @@ class Header extends React.Component<HeaderReduxProps> {
                 icon: 'settings',
                 title: !this.props.isLoggedIn ? 'Sign in required' : undefined,
                 disabled: !this.props.isLoggedIn,
-                style: {
-                    pointerEvents: 'auto', // enable tooltip for disabled buttons
-                },
                 onClick: () => this.props.isLoggedIn && this.props.openSidePanel()
             }
         ];
@@ -181,7 +178,6 @@ class Header extends React.Component<HeaderReduxProps> {
                     id="filePicker"
                 />
                 <CommandBar
-                    isSearchBoxVisible={false}
                     items={itemsNonFocusable}
                     farItems={farItemsNonFocusable}
                 />

@@ -3,7 +3,7 @@ import './CardPreviewPanel.css';
 import { MessageCard, InvokeAddInCommandAction } from '../../../utilities/message-card';
 import { AdaptiveCard, Action, ActionSet, HttpAction } from 'adaptivecards';
 import { defaultCardConfig, initializeHostContainers } from '../../../utilities/host-containers';
-import { actionExecuted, parseElement, anchorClicked, processMarkdown } from '../../../utilities/call-registry';
+import { actionExecuted, parseElement, processMarkdown } from '../../../utilities/call-registry';
 import { connect } from 'react-redux';
 import { State } from '../../../reducers/index';
 
@@ -94,7 +94,7 @@ class CardPreviewPanel extends React.Component<CardPreviewReduxProps> {
 
         AdaptiveCard.onExecuteAction = actionExecuted;
         AdaptiveCard.onParseElement = parseElement;
-        AdaptiveCard.onAnchorClicked = anchorClicked;
+        // AdaptiveCard.onAnchorClicked = anchorClicked;
         AdaptiveCard.processMarkdown = processMarkdown;
     }
 }
