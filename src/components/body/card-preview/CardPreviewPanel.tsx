@@ -39,6 +39,7 @@ export default class CardPreviewPanel extends React.Component {
     }
 
     public componentDidUpdate() {
+        
         this.updateCardPreview();
     }
 

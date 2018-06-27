@@ -22,10 +22,12 @@
   },
   "exclude": [
     "node_modules",
+    "local_modules",
     "build",
     "scripts",
     "acceptance-tests",
     "webpack",
+    "config",
     "jest",
     "src/setupTests.ts"
   ]
