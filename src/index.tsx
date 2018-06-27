@@ -7,13 +7,19 @@ import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import playgroundApp from './reducers';
+import { Provider as MobxProvider } from 'mobx-react';
+import editorStore from './stores/editorStore';
 
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 export let store = createStoreWithMiddleware(playgroundApp);
 
+const mobxStores = {editorStore};
+
 ReactDOM.render(
     <Provider store={store}>
-        <App />
+        <MobxProvider {...mobxStores}>
+            <App />
+        </MobxProvider>
     </Provider>,
     document.getElementById('root') as HTMLElement
 );

@@ -9,6 +9,7 @@
     "jsx": "react",
     "moduleResolution": "node",
     "skipLibCheck": true,
+    "experimentalDecorators": true,
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
