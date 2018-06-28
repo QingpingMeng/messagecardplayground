@@ -17,7 +17,7 @@ import {
 import { EditorStore } from '../../../stores/editorStore';
 import { inject, observer } from 'mobx-react';
 
-require('./adaptivecard-default.css');
+import './adaptivecard-default.css';
 
 interface StoreProps {
     editorStore: EditorStore;
@@ -39,7 +39,7 @@ export default class CardPreviewPanel extends React.Component {
     }
 
     public componentDidUpdate() {
-        
+
         this.updateCardPreview();
     }
 
