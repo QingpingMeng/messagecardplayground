@@ -1,7 +1,6 @@
 import { UserAgentApplication } from 'msal';
 import { LOG_IN, LOG_IN_ERROR, Actions, LOG_OUT } from './index';
 import axios from 'axios';
-import { store } from '../index';
 import { debugConfig, prodConfig } from '../config';
 import { getUserEmailAddress } from './restClient';
 
@@ -54,10 +53,10 @@ export function getAccessToken(forceRefresh?: boolean): Promise<string> {
             userAgentApplication.acquireTokenSilent(applicationConfig.graphScopes)
                 .then((accessToken: string) => {
                     axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-                    store.dispatch({
-                        type: LOG_IN,
-                        payload: accessToken
-                    });
+                    // store.dispatch({
+                    //     type: LOG_IN,
+                    //     payload: accessToken
+                    // });
                     resolve(accessToken);
                 })
                 .catch(() => {

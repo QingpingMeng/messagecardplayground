@@ -1,37 +1,91 @@
 import * as React from 'react';
 import './Header.css';
 import { CommandBar } from 'office-ui-fabric-react/lib/CommandBar';
-import {  IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
+import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { inject, observer } from 'mobx-react';
 import { AuthStore } from '../../stores/authStore';
+import { UserStore } from '../../stores/userStore';
+import { EditorStore } from '../../stores/editorStore';
 
-// const sampleOptions = [
-//     'Illustration of the full card format',
-//     'Connectors reference example',
-//     'Facebook - Page update (digest)',
-//     'GitHub - Issue opened',
-//     'GitHub - Pull request opened',
-//     'Microsoft Flow approval',
-//     'theSkimm',
-//     'TINYPulse - Engage',
-//     'Trello - Board member added',
-//     'Trello - Card created',
-//     'Trello - Checklist item completed',
-//     'Twitter - Digest',
-//     'Twitter - Individual Tweet',
-//     'Twitter - Hero image',
-//     'Wunderlist - Task created',
-//     'Yammer - Digest'
-// ];
+const cardSamples = [
+    {
+        displayName: 'Adaptive Card samples'
+    },
+    // Adaptive Card samples
+    {
+        displayName: 'Trello update',
+        fileName: 'Trello update (Adaptive)'
+    },
+    { displayName: 'CRM opportunity', fileName: 'CRM opportunity (Adaptive)' },
+    {
+        displayName: 'Flight itinerary',
+        fileName: 'Flight itinerary (Adaptive)'
+    },
+    { displayName: 'Profile update', fileName: 'Profile update (Adaptive)' },
+    { displayName: 'TINYPulse', fileName: 'TINYPulse (Adaptive)' },
+    { displayName: 'Weather', fileName: 'Weather (Adaptive)' },
+    {
+        displayName: 'MessageCard layout emulation',
+        fileName: 'MessageCard layout emulation (Adaptive)'
+    },
+    {
+        displayName: 'Legacy MessageCard samples'
+    },
+    // MessageCard samples
+    {
+        displayName: 'GitHub - Issue opened',
+        fileName: 'GitHub - Issue opened'
+    },
+    {
+        displayName: 'Microsoft Flow approval',
+        fileName: 'Microsoft Flow approval'
+    },
+    { displayName: 'TINYPulse - Engage', fileName: 'TINYPulse - Engage' },
+    { displayName: 'Trello - Card created', fileName: 'Trello - Card created' },
+    { displayName: 'Yammer - Digest', fileName: 'Yammer - Digest' }
+];
 
 interface StoresProps {
     authStore: AuthStore;
+    userStore: UserStore;
+    editorStore: EditorStore;
 }
 
-@inject('authStore')
+@inject('authStore', 'userStore', 'editorStore')
 @observer
 export default class Header extends React.Component {
     public fileUploader: HTMLInputElement | null;
+
+    private leftCommands = [
+        {
+            key: 'select',
+            name: 'Select a sample',
+            iconProps: {
+                iconName: 'dropdown'
+            },
+            subMenuProps: {
+                items: cardSamples.map((sample, index) => {
+                    return {
+                        key: index.toString(),
+                        disabled: !!!sample.fileName,
+                        name: sample.displayName,
+                        onClick: sample.fileName
+                            ? () =>
+                                  this.onSelectedSampleChanged(sample.fileName)
+                            : undefined
+                    };
+                })
+            }
+        }
+        // {
+        //     key: 'workspaces',
+        //     name: 'Workspaces',
+        //     icon: 'settings',
+        //     title: !this.props.isLoggedIn ? 'Sign in required' : undefined,
+        //     disabled: !this.props.isLoggedIn,
+        //     onClick: () => this.props.isLoggedIn && this.props.openSidePanel()
+        // }
+    ];
 
     get stores() {
         return this.props as StoresProps;
@@ -42,36 +96,26 @@ export default class Header extends React.Component {
 
         // this.onUploadFile = this.onUploadFile.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
-        // this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
+        this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
     }
 
     // public componentDidMount() {
     //     this.onSelectedSampleChanged(sampleOptions[0]);
     // }
 
-    // public onSelectedSampleChanged(fileName: string): void {
-    //     const samplePath = require(`../../samples/${fileName}.txt`);
-    //     fetch(samplePath)
-    //         .then(response => response.json())
-    //         .then(response => this.props.updateCurrentEditingCard(
-    //             Object.assign(
-    //                 {},
-    //                 this.props.currentEditingCard,
-    //                 {
-    //                     body: JSON.stringify(response, null, '\t')
-    //                 }
-    //             )
-    //         ))
-    //         .catch(error => {
-    //             this.props.updateCurrentEditingCard(Object.assign(
-    //                 {},
-    //                 this.props.currentEditingCard,
-    //                 {
-    //                     body: JSON.stringify(error, null, '\t')
-    //                 }
-    //             ));
-    //         });
-    // }
+    public onSelectedSampleChanged(fileName: string): void {
+        const samplePath = require(`../../samples/${fileName}.txt`);
+        fetch(samplePath)
+            .then(response => response.json())
+            .then(response =>
+                this.stores.editorStore.updatePayloadText(
+                    JSON.stringify(response, null, '\t')
+                )
+            )
+            .catch(error => {
+                // alert out error
+            });
+    }
 
     // public onUploadFile(e: React.ChangeEvent<HTMLInputElement>) {
     //     const reader = new FileReader();
@@ -91,58 +135,26 @@ export default class Header extends React.Component {
     // }
 
     public handleLogin() {
-       !this.stores.authStore.isLoggedIn ? this.stores.authStore.login() : this.stores.authStore.logout();
+        !this.stores.authStore.isLoggedIn
+            ? this.stores.authStore.login()
+            : this.stores.authStore.logout();
     }
 
     public render() {
-        const itemsNonFocusable = [
-            // {
-            //     key: 'select',
-            //     name: 'Select a sample',
-            //     icon: 'dropdown',
-            //     items: (sampleOptions.map((sample, index) => {
-            //         return {
-            //             key: index.toString(),
-            //             name: sample,
-            //             onClick: () => this.onSelectedSampleChanged(sample)
-            //         };
-            //     }) as IContextualMenuItem[]).concat([
-            //         {
-            //             key: 'divider_1',
-            //             itemType: ContextualMenuItemType.Divider
-            //         },
-            //         {
-            //             key: 'upload',
-            //             name: 'Load a sample',
-            //             icon: 'upload',
-            //             onClick: () => {
-            //                 if (this.fileUploader) {
-            //                     this.fileUploader.click();
-            //                 }
-            //             }
-            //         }
-            //     ])
-            // },
-            // {
-            //     key: 'workspaces',
-            //     name: 'Workspaces',
-            //     icon: 'settings',
-            //     title: !this.props.isLoggedIn ? 'Sign in required' : undefined,
-            //     disabled: !this.props.isLoggedIn,
-            //     onClick: () => this.props.isLoggedIn && this.props.openSidePanel()
-            // }
-        ];
-
         const farItemsNonFocusable: IContextualMenuItem[] = [
-            // {
-            //     key: 'sendEmail',
-            //     name: 'Send via email',
-            //     icon: 'send',
-            //     // disabled: this.props.isSendingEmail,
-            //     onClick: () => {
-            //         this.props.sendEmail(this.props.currentEditingCard.body);
-            //     }
-            // },
+            {
+                key: 'sendEmail',
+                name: this.stores.userStore.isSendingEmail
+                    ? 'Sending...'
+                    : 'Send via email',
+                iconProps: {
+                    iconName: 'send'
+                },
+                disabled: !this.stores.userStore.canSendMail,
+                onClick: () => {
+                    this.stores.userStore.sendEmail();
+                }
+            },
             // {
             //     key: 'calendarEvent',
             //     name: 'Send via Webhook',
@@ -154,8 +166,16 @@ export default class Header extends React.Component {
             // },
             {
                 key: 'auth',
-                icon: this.stores.authStore.isLoggedIn ? 'SignOut' : 'AADLogo',
-                name: this.stores.authStore.isLoggedIn ? `Log out ${this.stores.authStore.username}` : 'Log in',
+                iconProps: {
+                    iconName: this.stores.authStore.isLoggedIn
+                        ? 'SignOut'
+                        : 'AADLogo'
+                },
+                name: this.stores.authStore.loginInProgress
+                    ? 'Logging in...'
+                    : this.stores.authStore.isLoggedIn
+                        ? `Log out (${this.stores.authStore.userEmailAddress})`
+                        : 'Log in',
                 onClick: this.handleLogin
             }
         ];
@@ -169,7 +189,7 @@ export default class Header extends React.Component {
                     id="filePicker"
                 /> */}
                 <CommandBar
-                    items={itemsNonFocusable}
+                    items={this.leftCommands}
                     farItems={farItemsNonFocusable}
                 />
             </div>

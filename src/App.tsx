@@ -4,9 +4,8 @@ import './App.css';
 import { debugConfig, prodConfig } from './config';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
-// import EditorPanel from './components/body/editor/EditorPanel';
 import CardPreviewPanel from './components/body/card-preview/CardPreviewPanel';
-import { initializeIcons } from '@uifabric/icons';
+import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import Editor from './components/body/editor/Editor';
 
 const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
@@ -14,7 +13,7 @@ const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
 export default class App extends React.Component<{}, null> {
     public componentWillMount() {
         // Register icons and pull the fonts from the default SharePoint cdn:
-        initializeIcons(undefined, { disableWarnings: true });
+        initializeIcons();
     }
 
     render() {

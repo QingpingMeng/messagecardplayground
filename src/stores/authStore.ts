@@ -1,16 +1,32 @@
-import { action, observable } from 'mobx';
+import { action, observable, computed } from 'mobx';
 import { UserAgentApplication } from 'msal';
 import { debugConfig as config } from '../config';
 
 export class AuthStore {
     @observable public isLoggedIn = false;
     @observable public loginInProgress = false;
-    @observable public username = '';
-    @observable public userEmailAddress = '';
+
+    @computed
+    public get username() {
+        if (this.isLoggedIn) {
+            return this.userAgentApplication.getUser().name;
+        } else {
+            return undefined;
+        }
+    }
+
+    @computed
+    public get userEmailAddress() {
+        if (this.isLoggedIn) {
+            return this.userAgentApplication.getUser().displayableId;
+        } else {
+            return undefined;
+        }
+    }
 
     private applicationConfig = {
         clientID: config.appId,
-        graphScopes: ['user.read', 'mail.send', 'openid', 'profile']
+        graphScopes: ['https://outlook.office.com/mail.send', 'openid', 'profile']
     };
 
     private userAgentApplication = new UserAgentApplication(
@@ -49,27 +65,24 @@ export class AuthStore {
             .then(action(() => (this.isLoggedIn = true)))
             .catch(() => {
                 // log in failed;
-            });
-    }
-
-    @action
-    public setUsername(username: string) {
-        if (username) {
-            this.username = username;
-        }
-    }
-
-    @action
-    public setUserEmail(email: string) {
-        if (email) {
-            this.userEmailAddress = email;
-        }
+            })
+            .finally(action(() => this.loginInProgress = false));
     }
 
     @action
     public logout() {
         sessionStorage.clear();
         this.isLoggedIn = false;
+    }
+
+    public getAccessToken() {
+        return this.userAgentApplication
+            .acquireTokenSilent(this.applicationConfig.graphScopes)
+            .catch(() => {
+                return this.userAgentApplication.acquireTokenPopup(
+                    this.applicationConfig.graphScopes
+                );
+            });
     }
 }
 
