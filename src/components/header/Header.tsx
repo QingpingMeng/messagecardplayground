@@ -99,9 +99,9 @@ export default class Header extends React.Component {
         this.onSelectedSampleChanged = this.onSelectedSampleChanged.bind(this);
     }
 
-    // public componentDidMount() {
-    //     this.onSelectedSampleChanged(sampleOptions[0]);
-    // }
+    public componentDidMount() {
+        this.onSelectedSampleChanged(cardSamples[1].fileName);
+    }
 
     public onSelectedSampleChanged(fileName: string): void {
         const samplePath = require(`../../samples/${fileName}.txt`);

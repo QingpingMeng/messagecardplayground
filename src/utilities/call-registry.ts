@@ -1,56 +1,101 @@
 /* tslint:disable */
-import { Image, Column, Container, Action, OpenUrlAction, SubmitAction, HttpAction, Spacing, PaddingDefinition } from "adaptivecards";
-import { getEnumValueOrDefault } from "adaptivecards/lib/utils";
+import { Action, OpenUrlAction, SubmitAction, HttpAction } from "adaptivecards";
 const md = require('markdown-it')();
+import * as Adaptive from 'adaptivecards';
 
-export function parseElement(element: any, json: any) {
+export function parseElement(element: Adaptive.CardElement, json: any) {
+    if (element instanceof Adaptive.AdaptiveCard) {
+        var card = <Adaptive.AdaptiveCard>element;
+        var actionArray: Array<Adaptive.Action> = [];
+
+        card["resources"] = { actions: actionArray };
+
+        if (typeof json["resources"] === "object") {
+            var actionResources = json["resources"]["actions"] as Array<any>;
+
+            for (var i = 0; i < actionResources.length; i++) {
+                let action = Adaptive.AdaptiveCard.actionTypeRegistry.createInstance(actionResources[i]["type"]);
+
+                if (action) {
+                    action.parse(actionResources[i]);
+                    action.setParent(card);
+
+                    actionArray.push(action);
+                }
+            }
+        }
+    }
+    
     if (typeof json["isVisible"] === "boolean") {
         element.isVisible = json["isVisible"];
     }
 
-    if (element instanceof Image && typeof json["backgroundColor"] === "string") {
+    if (element instanceof Adaptive.Image && typeof json["backgroundColor"] === "string") {
         element.backgroundColor = json["backgroundColor"];
     }
 
-    if (element instanceof Column) {
-        element.pixelWidth = json["pixelWidth"];
+    if (element instanceof Adaptive.Container) {
+        var padding = parsePadding(json["padding"]);
+
+        if (padding) {
+            (<Adaptive.Container>element).padding = padding;
+        }
     }
 
-    if (element instanceof Container) {
-        const jsonPadding = json['padding']
+    if (element instanceof Adaptive.ColumnSet) {
+        var padding = parsePadding(json["padding"]);
 
-        if (jsonPadding) {
-          if (typeof jsonPadding === 'string') {
-            const uniformPadding = getEnumValueOrDefault(
-              Spacing,
-              jsonPadding,
-              Spacing.None)
-
-            element.padding = new PaddingDefinition(
-              uniformPadding,
-              uniformPadding,
-              uniformPadding,
-              uniformPadding)
-          } else if (typeof jsonPadding === 'object') {
-            element.padding = new PaddingDefinition(
-              getEnumValueOrDefault(Spacing, jsonPadding['top'], Spacing.None),
-              getEnumValueOrDefault(Spacing, jsonPadding['right'], Spacing.None),
-              getEnumValueOrDefault(Spacing, jsonPadding['bottom'], Spacing.None),
-              getEnumValueOrDefault(Spacing, jsonPadding['left'], Spacing.None))
-          }
+        if (padding) {
+            (<Adaptive.ColumnSet>element).padding = padding;
         }
     }
 }
 
-export function anchorClicked(anchor: HTMLAnchorElement): boolean {
-    if (anchor.href.toLowerCase().indexOf("action:") == 0) {
-        alert("Executing inline action...");
+function parsePadding(json: any): Adaptive.PaddingDefinition {
+    if (json) {
+        if (typeof json === "string") {
+            var uniformPadding = Adaptive.getEnumValueOrDefault(Adaptive.Spacing, json, Adaptive.Spacing.None);
 
-        return true;
+            return new Adaptive.PaddingDefinition(
+                uniformPadding,
+                uniformPadding,
+                uniformPadding,
+                uniformPadding);
+        }
+        else if (typeof json === "object") {
+            return new Adaptive.PaddingDefinition(
+                Adaptive.getEnumValueOrDefault(Adaptive.Spacing, json["top"], Adaptive.Spacing.None),
+                Adaptive.getEnumValueOrDefault(Adaptive.Spacing, json["right"], Adaptive.Spacing.None),
+                Adaptive.getEnumValueOrDefault(Adaptive.Spacing, json["bottom"], Adaptive.Spacing.None),
+                Adaptive.getEnumValueOrDefault(Adaptive.Spacing, json["left"], Adaptive.Spacing.None));
+        }
     }
-    else {
-        return false;
+
+    return null;
+}
+
+export function anchorClicked(card: Adaptive.AdaptiveCard, anchor: HTMLAnchorElement): boolean {
+    var regEx = /^action:([a-z0-9]+)$/ig;
+
+    var matches = regEx.exec(anchor.href);
+    
+    if (matches) {
+        var actionId = matches[1];
+
+        if (card) {
+            var actionArray = card["resources"]["actions"] as Array<Adaptive.Action>;
+
+            for (var i = 0; i < actionArray.length; i++) {
+                if (actionArray[i].id == actionId) {
+                    actionArray[i].execute();
+
+                    return true;
+                }
+            }
+        }
     }
+
+    return false;
 }
 
 export function processMarkdown(text:string){

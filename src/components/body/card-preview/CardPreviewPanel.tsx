@@ -1,23 +1,20 @@
 import * as React from 'react';
-import './CardPreviewPanel.css';
 import {
     MessageCard,
-    InvokeAddInCommandAction
+    InvokeAddInCommandAction,
+    DisplayMessageFormAction,
+    DisplayAppointmentFormAction
 } from '../../../utilities/message-card';
 import { AdaptiveCard, Action, ActionSet, HttpAction } from 'adaptivecards';
-import {
-    defaultCardConfig,
-    initializeHostContainers
-} from '../../../utilities/host-containers';
+import { setTheme, getThemeByName, initializeThemes } from '../../../utilities/themes';
 import {
     actionExecuted,
     parseElement,
-    processMarkdown
+    processMarkdown,
+    anchorClicked
 } from '../../../utilities/call-registry';
 import { EditorStore } from '../../../stores/editorStore';
 import { inject, observer } from 'mobx-react';
-
-import './adaptivecard-default.css';
 
 interface StoreProps {
     editorStore: EditorStore;
@@ -33,13 +30,12 @@ export default class CardPreviewPanel extends React.Component {
     }
 
     public componentDidMount() {
-        initializeHostContainers();
+        initializeThemes();
         this.initializeAdaptiveCard();
         this.updateCardPreview();
     }
 
     public componentDidUpdate() {
-
         this.updateCardPreview();
     }
 
@@ -55,7 +51,7 @@ export default class CardPreviewPanel extends React.Component {
 
     public renderCard() {
         const card = JSON.parse(this.stores.editorStore.payloadText);
-        let cardTypeName = card['@type'] || card.type;
+        let cardTypeName = card['@type'] || card.type || 'AdaptiveCard';
         let renderedCard: HTMLElement | null = null;
 
         switch (cardTypeName) {
@@ -63,18 +59,30 @@ export default class CardPreviewPanel extends React.Component {
             case 'MessageCard':
                 let messageCard = new MessageCard();
                 messageCard.parse(card);
+                setTheme(messageCard.theme.styleSheetName);
+                switch (messageCard.theme.name) {
+                    case 'compact':
+                        renderedCard.style.borderLeft = '5px solid #A6A6A6';
 
-                if (messageCard.hostContainer) {
-                    this.setTheme(messageCard.hostContainer.styleSheetName);
-                    renderedCard = messageCard.hostContainer.render(
-                        messageCard
-                    );
+                        break;
+                    default:
+                        renderedCard.style.border = '1px solid #EEEEEE';
+
+                        if (messageCard.themeColor) {
+                            renderedCard.style.borderLeft =
+                                '3px solid #' + messageCard.themeColor;
+                        }
+
+                        break;
                 }
 
                 break;
             case 'AdaptiveCard':
                 let adaptiveCard = new AdaptiveCard();
-                adaptiveCard.hostConfig = defaultCardConfig;
+                let theme = getThemeByName(card.theme);
+
+                setTheme(theme.styleSheetName);
+                adaptiveCard.hostConfig = theme.hostConfig;
                 adaptiveCard.parse(card);
 
                 renderedCard = document.createElement('div');
@@ -98,10 +106,6 @@ export default class CardPreviewPanel extends React.Component {
         return renderedCard;
     }
 
-    private setTheme(themeName: string) {
-        require(`./${themeName}.css`);
-    }
-
     private updateCardPreview() {
         if (this.cardPreviewDiv) {
             try {
@@ -119,8 +123,6 @@ export default class CardPreviewPanel extends React.Component {
     }
 
     private initializeAdaptiveCard(): void {
-        AdaptiveCard.preExpandSingleShowCardAction = true;
-
         AdaptiveCard.elementTypeRegistry.registerType('ActionSet', () => {
             return new ActionSet();
         });
@@ -140,10 +142,22 @@ export default class CardPreviewPanel extends React.Component {
                 return new ToggleVisibilityAction();
             }
         );
+        AdaptiveCard.actionTypeRegistry.registerType(
+            'Action.DisplayMessageForm',
+            () => {
+                return new DisplayMessageFormAction();
+            }
+        );
+        AdaptiveCard.actionTypeRegistry.registerType(
+            'Action.DisplayAppointmentForm',
+            () => {
+                return new DisplayAppointmentFormAction();
+            }
+        );
 
         AdaptiveCard.onExecuteAction = actionExecuted;
         AdaptiveCard.onParseElement = parseElement;
-        // AdaptiveCard.onAnchorClicked = anchorClicked;
+        AdaptiveCard.onAnchorClicked = anchorClicked;
         AdaptiveCard.processMarkdown = processMarkdown;
     }
 }

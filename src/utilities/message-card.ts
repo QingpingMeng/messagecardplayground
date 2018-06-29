@@ -1,7 +1,28 @@
 /* tslint:disable */
+import * as Themes from './themes';
+import * as Adaptive from 'adaptivecards';
 
-import * as HostContainers from "./host-containers";
-import * as Adaptive from "adaptivecards";
+export abstract class ItemAction extends Adaptive.Action {
+    itemId: string;
+
+    parse(json: any) {
+        super.parse(json);
+
+        this.itemId = json["itemId"];
+    }
+}
+
+export class DisplayMessageFormAction extends ItemAction {
+    getJsonTypeName(): string {
+        return "Action.DisplayMessageForm";
+    }    
+}
+
+export class DisplayAppointmentFormAction extends ItemAction {
+    getJsonTypeName(): string {
+        return "Action.DisplayAppointmentForm";
+    }    
+}
 
 export class InvokeAddInCommandAction extends Adaptive.Action {
     addInId: string;
@@ -9,7 +30,7 @@ export class InvokeAddInCommandAction extends Adaptive.Action {
     initializationContext: any;
 
     getJsonTypeName(): string {
-        return "Action.InvokeAddInCommand";
+        return 'Action.InvokeAddInCommand';
     }
 
     execute() {
@@ -19,17 +40,20 @@ export class InvokeAddInCommandAction extends Adaptive.Action {
     parse(json: any) {
         super.parse(json);
 
-        this.addInId = json["addInId"];
-        this.desktopCommandId = json["desktopCommandId"];
-        this.initializationContext = json["initializationContext"];
+        this.addInId = json['addInId'];
+        this.desktopCommandId = json['desktopCommandId'];
+        this.initializationContext = json['initializationContext'];
     }
 }
 
-function parsePicture(json: any, defaultSize: Adaptive.Size = Adaptive.Size.Medium, defaultStyle: Adaptive.ImageStyle = Adaptive.ImageStyle.Default): Adaptive.Image
-{
+function parsePicture(
+    json: any,
+    defaultSize: Adaptive.Size = Adaptive.Size.Medium,
+    defaultStyle: Adaptive.ImageStyle = Adaptive.ImageStyle.Default
+): Adaptive.Image {
     let picture = new Adaptive.Image();
-    picture.url = json["image"];
-    picture.size = json["size"] ? json["size"] : defaultSize;
+    picture.url = json['image'];
+    picture.size = json['size'] ? json['size'] : defaultSize;
 
     return picture;
 }
@@ -38,7 +62,7 @@ function parseImageSet(json: any): Adaptive.ImageSet {
     let imageSet = new Adaptive.ImageSet();
     let imageArray = json as Array<any>;
 
-    for (let i = 0; i < imageArray.length; i++) {
+    for (var i = 0; i < imageArray.length; i++) {
         let image = parsePicture(imageArray[i], Adaptive.Size.Large);
 
         imageSet.addImage(image);
@@ -51,10 +75,10 @@ function parseFactSet(json: any): Adaptive.FactSet {
     let factSet = new Adaptive.FactSet();
     let factArray = json as Array<any>;
 
-    for (let i = 0; i < factArray.length; i++) {
+    for (var i = 0; i < factArray.length; i++) {
         let fact = new Adaptive.Fact();
-        fact.name = factArray[i]["name"];
-        fact.value = factArray[i]["value"];
+        fact.name = factArray[i]['name'];
+        fact.value = factArray[i]['value'];
 
         factSet.facts.push(fact);
     }
@@ -63,96 +87,96 @@ function parseFactSet(json: any): Adaptive.FactSet {
 }
 
 function parseOpenUrlAction(json: any): Adaptive.OpenUrlAction {
-    let action = new Adaptive.OpenUrlAction();
-    action.title = json["name"];
-    action.url = "TODO";
+    var action = new Adaptive.OpenUrlAction();
+    action.title = json['name'];
+    action.url = 'TODO';
 
     return action;
 }
 
 function parseHttpAction(json: any): Adaptive.HttpAction {
-    let action = new Adaptive.HttpAction();
-    action.method = "POST";
-    action.body = json["body"];
-    action.title = json["name"];
-    action.url = json["url"];
+    var action = new Adaptive.HttpAction();
+    action.method = 'POST';
+    action.body = json['body'];
+    action.title = json['name'];
+    action.url = json['url'];
 
     return action;
 }
 
 function parseInvokeAddInCommandAction(json: any): InvokeAddInCommandAction {
-    let action = new InvokeAddInCommandAction();
-    action.title = json["name"];
-    action.addInId = json["addInId"];
-    action.desktopCommandId = json["desktopCommandId"];
-    action.initializationContext = json["initializationContext"];
+    var action = new InvokeAddInCommandAction();
+    action.title = json['name'];
+    action.addInId = json['addInId'];
+    action.desktopCommandId = json['desktopCommandId'];
+    action.initializationContext = json['initializationContext'];
 
     return action;
 }
 
 function parseInput(input: Adaptive.Input, json: any) {
-    input.id = json["id"];
-    input.defaultValue = json["value"];
+    input.id = json['id'];
+    input.defaultValue = json['value'];
 }
 
 function parseTextInput(json: any): Adaptive.TextInput {
-    let input = new Adaptive.TextInput();
+    var input = new Adaptive.TextInput();
     parseInput(input, json);
-    input.placeholder = json["title"];
-    input.isMultiline = json["isMultiline"];
+    input.placeholder = json['title'];
+    input.isMultiline = json['isMultiline'];
 
     return input;
 }
 
 function parseDateInput(json: any): Adaptive.DateInput {
-    let input = new Adaptive.DateInput();
+    var input = new Adaptive.DateInput();
     parseInput(input, json);
 
     return input;
 }
 
 function parseChoiceSetInput(json: any): Adaptive.ChoiceSetInput {
-    let input = new Adaptive.ChoiceSetInput();
+    var input = new Adaptive.ChoiceSetInput();
     parseInput(input, json);
-    input.placeholder = json["title"];
+    input.placeholder = json['title'];
 
-    let choiceArray = json["choices"] as Array<any>;
+    var choiceArray = json['choices'] as Array<any>;
 
     if (choiceArray) {
-        for (let i = 0; i < choiceArray.length; i++) {
-            let choice = new Adaptive.Choice();
-            choice.title = choiceArray[i]["display"];
-            choice.value = choiceArray[i]["value"];
+        for (var i = 0; i < choiceArray.length; i++) {
+            var choice = new Adaptive.Choice();
+            choice.title = choiceArray[i]['display'];
+            choice.value = choiceArray[i]['value'];
 
             input.choices.push(choice);
         }
     }
 
-    input.isMultiSelect = json["isMultiSelect"];
-    input.isCompact = !(json["style"] === "expanded");
+    input.isMultiSelect = json['isMultiSelect'];
+    input.isCompact = !(json['style'] === 'expanded');
 
     return input;
 }
 
-function parseShowCardAction(json: any, host: any): Adaptive.ShowCardAction {
-    let showCardAction = new Adaptive.ShowCardAction();
-    showCardAction.title = json["name"];
+function parseShowCardAction(json: any, host): Adaptive.ShowCardAction {
+    var showCardAction = new Adaptive.ShowCardAction();
+    showCardAction.title = json['name'];
 
-    let inputArray = json["inputs"] as Array<any>;
+    var inputArray = json['inputs'] as Array<any>;
 
     if (inputArray) {
-        for (let i = 0; i < inputArray.length; i++) {
-            let jsonInput = inputArray[i];
-            let input: Adaptive.Input | null = null;
+        for (var i = 0; i < inputArray.length; i++) {
+            var jsonInput = inputArray[i];
+            var input: Adaptive.Input = null;
 
-            switch (jsonInput["@type"]) {
-                case "TextInput":
+            switch (jsonInput['@type']) {
+                case 'TextInput':
                     input = parseTextInput(jsonInput);
                     break;
-                case "DateInput":
+                case 'DateInput':
                     input = parseDateInput(jsonInput);
                     break;
-                case "MultichoiceInput":
+                case 'MultichoiceInput':
                     input = parseChoiceSetInput(jsonInput);
                     break;
             }
@@ -163,7 +187,7 @@ function parseShowCardAction(json: any, host: any): Adaptive.ShowCardAction {
         }
     }
 
-    let actionArray = json["actions"];
+    var actionArray = json['actions'];
 
     if (actionArray) {
         showCardAction.card.addItem(parseActionSet(actionArray, host));
@@ -172,32 +196,31 @@ function parseShowCardAction(json: any, host: any): Adaptive.ShowCardAction {
     return showCardAction;
 }
 
-function parseActionSet(json: any, host: HostContainers.HostContainer): Adaptive.ActionSet {
-    let actionSet = new Adaptive.ActionSet();    
+function parseActionSet(json: any, host: Themes.Theme): Adaptive.ActionSet {
+    let actionSet = new Adaptive.ActionSet();
     let actionArray = json as Array<any>;
 
-    if (actionArray.length == 1 && actionArray[0]["@type"] === "ActionCard") {
-        actionSet.spacing = Adaptive.Spacing.Default;        
-    }
-    else {
-        actionSet.spacing = Adaptive.Spacing.Small;        
+    if (actionArray.length == 1 && actionArray[0]['@type'] === 'ActionCard') {
+        actionSet.spacing = Adaptive.Spacing.Default;
+    } else {
+        actionSet.spacing = Adaptive.Spacing.Small;
     }
 
-    for (let i = 0; i < actionArray.length; i++) {
-        let jsonAction = actionArray[i];
-        let action: Adaptive.Action | null = null;
+    for (var i = 0; i < actionArray.length; i++) {
+        var jsonAction = actionArray[i];
+        var action: Adaptive.Action = null;
 
-        switch (jsonAction["@type"]) {
-            case "OpenUri":
+        switch (jsonAction['@type']) {
+            case 'OpenUri':
                 action = parseOpenUrlAction(jsonAction);
                 break;
-            case "HttpPOST":
+            case 'HttpPOST':
                 action = parseHttpAction(jsonAction);
                 break;
-            case "InvokeAddInCommand":
+            case 'InvokeAddInCommand':
                 action = parseInvokeAddInCommandAction(jsonAction);
                 break;
-            case "ActionCard":
+            case 'ActionCard':
                 if (host.allowActionCard) {
                     action = parseShowCardAction(jsonAction, host);
                 }
@@ -212,43 +235,48 @@ function parseActionSet(json: any, host: HostContainers.HostContainer): Adaptive
     return actionSet;
 }
 
-function parseSection(json: any, host: HostContainers.HostContainer): Adaptive.Container {
+function parseSection(json: any, host: Themes.Theme): Adaptive.Container {
     let section = new Adaptive.Container();
 
-    if (typeof json["startGroup"] === "boolean" && json["startGroup"]) {
+    if (typeof json['startGroup'] === 'boolean' && json['startGroup']) {
         section.separator = true;
         section.spacing = Adaptive.Spacing.Large;
-    }
-    else {
+    } else {
         section.spacing = Adaptive.Spacing.Default;
     }
 
-    if (json["title"] != undefined) {
-        let textBlock = new Adaptive.TextBlock();
-        textBlock.text = json["title"];
+    if (json['title'] != undefined) {
+        var textBlock = new Adaptive.TextBlock();
+        textBlock.text = json['title'];
         textBlock.size = Adaptive.TextSize.Medium;
         textBlock.wrap = true;
 
         section.addItem(textBlock);
     }
 
-    section.style = json["style"] === "emphasis" ? Adaptive.ContainerStyle.Emphasis : Adaptive.ContainerStyle.Default;
+    section.style =
+        json['style'] === 'emphasis'
+            ? Adaptive.ContainerStyle.Emphasis
+            : Adaptive.ContainerStyle.Default;
 
-    if (json["activityTitle"] != undefined || json["activitySubtitle"] != undefined ||
-        json["activityText"] != undefined || json["activityImage"] != undefined) {
-
-        let columnSet = new Adaptive.ColumnSet();
-        let column: Adaptive.Column;
+    if (
+        json['activityTitle'] != undefined ||
+        json['activitySubtitle'] != undefined ||
+        json['activityText'] != undefined ||
+        json['activityImage'] != undefined
+    ) {
+        var columnSet = new Adaptive.ColumnSet();
+        var column: Adaptive.Column;
 
         // Image column
-        if (json["activityImage"] != null) {
+        if (json['activityImage'] != null) {
             column = new Adaptive.Column();
-            column.width = "auto";
+            column.width = 'auto';
 
-            let image = new Adaptive.Image();            
+            var image = new Adaptive.Image();
             image.size = Adaptive.Size.Small; // json["activityImageSize"] ? json["activityImageSize"] : "small";
             image.style = Adaptive.ImageStyle.Person; // json["activityImageStyle"] ? json["activityImageStyle"] : "person";
-            image.url = json["activityImage"];
+            image.url = json['activityImage'];
 
             column.addItem(image);
 
@@ -256,21 +284,21 @@ function parseSection(json: any, host: HostContainers.HostContainer): Adaptive.C
         }
 
         // Text column
-        column = new Adaptive.Column;
-        column.width = "stretch";
+        column = new Adaptive.Column();
+        column.width = 'stretch';
 
-        if (json["activityTitle"] != null) {
+        if (json['activityTitle'] != null) {
             let textBlock = new Adaptive.TextBlock();
-            textBlock.text = json["activityTitle"];
+            textBlock.text = json['activityTitle'];
             textBlock.spacing = Adaptive.Spacing.None;
             textBlock.wrap = true;
 
             column.addItem(textBlock);
         }
 
-        if (json["activitySubtitle"] != null) {
+        if (json['activitySubtitle'] != null) {
             let textBlock = new Adaptive.TextBlock();
-            textBlock.text = json["activitySubtitle"];
+            textBlock.text = json['activitySubtitle'];
             textBlock.weight = Adaptive.TextWeight.Lighter;
             textBlock.isSubtle = true;
             textBlock.spacing = Adaptive.Spacing.None;
@@ -279,9 +307,9 @@ function parseSection(json: any, host: HostContainers.HostContainer): Adaptive.C
             column.addItem(textBlock);
         }
 
-        if (json["activityText"] != null) {
+        if (json['activityText'] != null) {
             let textBlock = new Adaptive.TextBlock();
-            textBlock.text = json["activityText"];
+            textBlock.text = json['activityText'];
             textBlock.spacing = Adaptive.Spacing.None;
             textBlock.wrap = true;
 
@@ -294,7 +322,7 @@ function parseSection(json: any, host: HostContainers.HostContainer): Adaptive.C
     }
 
     if (host.allowHeroImage) {
-        let heroImage = json["heroImage"];
+        var heroImage = json['heroImage'];
 
         if (heroImage != undefined) {
             let image = parsePicture(heroImage);
@@ -304,32 +332,32 @@ function parseSection(json: any, host: HostContainers.HostContainer): Adaptive.C
         }
     }
 
-    if (json["text"] != undefined) {
+    if (json['text'] != undefined) {
         let text = new Adaptive.TextBlock();
-        text.text = json["text"];
+        text.text = json['text'];
         text.wrap = true;
 
         section.addItem(text);
     }
 
     if (host.allowFacts) {
-        if (json["facts"] != undefined) {
-            let factGroup = parseFactSet(json["facts"]);
+        if (json['facts'] != undefined) {
+            let factGroup = parseFactSet(json['facts']);
 
             section.addItem(factGroup);
         }
     }
 
     if (host.allowImages) {
-        if (json["images"] != undefined) {
-            let pictureGallery = parseImageSet(json["images"]);
+        if (json['images'] != undefined) {
+            let pictureGallery = parseImageSet(json['images']);
 
             section.addItem(pictureGallery);
         }
     }
 
-    if (json["potentialAction"] != undefined) {
-        let actionSet = parseActionSet(json["potentialAction"], host);
+    if (json['potentialAction'] != undefined) {
+        let actionSet = parseActionSet(json['potentialAction'], host);
 
         section.addItem(actionSet);
     }
@@ -342,30 +370,26 @@ export class MessageCard {
 
     summary: string;
     themeColor: string;
-    style: string = "default";
-    hostContainer: HostContainers.HostContainer | null;
+    style: string = 'default';
+    theme: Themes.Theme;
 
     parse(json: any) {
-        this.summary = json["summary"];
-        this.themeColor = json["themeColor"];
+        this.summary = json['summary'];
+        this.themeColor = json['themeColor'];
 
-        if (json["style"]) {
-            this.style = json["style"];
+        if (json['style']) {
+            this.style = json['style'];
         }
 
-        this.hostContainer = HostContainers.getHostContainerByName(this.style);
-
-        if (!this.hostContainer) {
-            throw new Error("Invalid style: " + this.style);
-        }
+        this.theme = Themes.getThemeByName(this.style);
 
         this._adaptiveCard = new Adaptive.AdaptiveCard();
-        this._adaptiveCard.hostConfig = this.hostContainer.cardConfiguration;
+        this._adaptiveCard.hostConfig = this.theme.hostConfig;
 
-        if (this.hostContainer.allowCardTitle) {
-            if (json["title"] != undefined) {
+        if (this.theme.allowCardTitle) {
+            if (json['title'] != undefined) {
                 let textBlock = new Adaptive.TextBlock();
-                textBlock.text = json["title"];
+                textBlock.text = json['title'];
                 textBlock.size = Adaptive.TextSize.Large;
                 textBlock.wrap = true;
 
@@ -373,26 +397,25 @@ export class MessageCard {
             }
         }
 
-        if (json["text"] != undefined) {
+        if (json['text'] != undefined) {
             let textBlock = new Adaptive.TextBlock();
-            textBlock.text = json["text"],
-            textBlock.wrap = true;
+            (textBlock.text = json['text']), (textBlock.wrap = true);
 
             this._adaptiveCard.addItem(textBlock);
         }
 
-        if (json["sections"] != undefined) {
-            let sectionArray = json["sections"] as Array<any>;
+        if (json['sections'] != undefined) {
+            let sectionArray = json['sections'] as Array<any>;
 
-            for (let i = 0; i < sectionArray.length; i++) {
-                let section = parseSection(sectionArray[i], this.hostContainer);
+            for (var i = 0; i < sectionArray.length; i++) {
+                let section = parseSection(sectionArray[i], this.theme);
 
                 this._adaptiveCard.addItem(section);
             }
         }
 
-        if (json["potentialAction"] != undefined) {
-            let actionSet = parseActionSet(json["potentialAction"], this.hostContainer);
+        if (json['potentialAction'] != undefined) {
+            let actionSet = parseActionSet(json['potentialAction'], this.theme);
 
             this._adaptiveCard.addItem(actionSet);
         }
