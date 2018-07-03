@@ -1,6 +1,8 @@
 import { action, observable, computed } from 'mobx';
 import { UserAgentApplication } from 'msal';
-import { debugConfig as config } from '../config';
+import { debugConfig, prodConfig } from '../config';
+
+const config = process.env.NODE_ENV === 'production' ? prodConfig : debugConfig;
 
 export class AuthStore {
     @observable public isLoggedIn = false;

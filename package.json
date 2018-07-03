@@ -49,7 +49,7 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
-    "deploy": "node scripts/build.js && node deploy-to-azure.js"
+    "deploy": "node scripts/build.js && node scripts/deploy-to-azure.js"
   },
   "devDependencies": {
     "@types/jest": "^21.1.8",

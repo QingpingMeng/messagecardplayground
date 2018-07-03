@@ -13,7 +13,7 @@ if(!azure){
     process.exit(1);
 }
 const blobService = azure.createBlobService();
-const buildFolder = './build/';
+const buildFolder = path.resolve(__dirname, '../build/');
 
 const uploadFile = (blobSvc, targetFile, sourceFile) => {
     console.log("Uploading:", targetFile, sourceFile);

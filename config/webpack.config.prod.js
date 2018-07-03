@@ -164,7 +164,6 @@ module.exports = {
           // in the main CSS file.
           {
             test: /\.css$/,
-            exclude: path.resolve(__dirname, '../node_modules/monaco-editor/'),
             use: [
               devMode ? 'style-loader' : MiniCssExtractPlugin.loader,
               'css-loader',

@@ -1,5 +1,5 @@
 .message-bar {
-    position: absolute;
+    position: absolute !important;
     max-width: 300px;
     top: 48px;
     right: 20px;
