@@ -34,6 +34,7 @@ export class AuthStore {
         null,
         null,
         {
+            cacheLocation: 'localStorage',
             redirectUri: config.redirectUri
         }
     );
