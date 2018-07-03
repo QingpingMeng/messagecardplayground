@@ -1,0 +1,8 @@
+.message-bar {
+    position: absolute;
+    max-width: 300px;
+    top: 48px;
+    right: 20px;
+    z-index: 1001;
+    box-shadow: 1px 1px 6px 0;
+}

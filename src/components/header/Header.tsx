@@ -6,6 +6,7 @@ import { inject, observer } from 'mobx-react';
 import { AuthStore } from '../../stores/authStore';
 import { UserStore } from '../../stores/userStore';
 import { EditorStore } from '../../stores/editorStore';
+import Notification from './Notification';
 
 const cardSamples = [
     {
@@ -192,6 +193,7 @@ export default class Header extends React.Component {
                     items={this.leftCommands}
                     farItems={farItemsNonFocusable}
                 />
+                <Notification />
             </div>
         );
     }

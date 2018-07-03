@@ -2,15 +2,35 @@ import { action, observable, computed } from 'mobx';
 import authStore from './authStore';
 import editorStore from './editorStore';
 import axios from 'axios';
+import { MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
+
+export interface Message {
+    message: string;
+    messageType?: MessageBarType;
+}
 
 export class UserStore {
     @observable public isSendingEmail = false;
+    @observable public userMessage: Message;
+    @observable public shouldShowMessageBar = false;
 
     private apiEndpoint = 'https://outlook.office.com/api/v2.0';
 
     @computed
     get canSendMail() {
         return authStore.isLoggedIn && !this.isSendingEmail;
+    }
+
+    @action
+    public showMessageBar(message: Message) {
+        this.userMessage = message;
+        this.shouldShowMessageBar = true;
+    }
+
+    @action
+    public hideMessageBar() {
+        this.shouldShowMessageBar = false;
+        this.userMessage = undefined;
     }
 
     @action
@@ -88,13 +108,11 @@ export class UserStore {
             })
             .then(
                 action(() => {
-                    // tslint:disable-next-line:no-console
-                    console.log('Sent');
+                    this.showMessageBar({message: 'The card was successfully sent.'});
                 })
             )
             .catch(error => {
-                // tslint:disable-next-line:no-console
-                console.error(error);
+                    this.showMessageBar({message: `Something went wrong, the email couldn't be sent.`});
             })
             .finally(
                 action(() => {

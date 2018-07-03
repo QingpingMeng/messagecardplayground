@@ -72,7 +72,7 @@ export class AuthStore {
 
     @action
     public logout() {
-        sessionStorage.clear();
+        localStorage.clear();
         this.isLoggedIn = false;
     }
 
