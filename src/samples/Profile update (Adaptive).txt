@@ -1,0 +1,70 @@
+{
+	"$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+	"type": "AdaptiveCard",
+	"version": "1.0",
+	"body": [
+		{
+			"type": "ColumnSet",
+			"columns": [
+				{
+					"width": "auto",
+					"items": [
+						{
+							"type": "Image",
+							"width": "200px",
+							"url": "http://messagecardplayground.azurewebsites.net/assets/alexprofilepic.jpg"
+						}
+					]
+				},
+				{
+					"width": "stretch",
+					"spacing": "padding",
+					"items": [
+						{
+							"type": "Container",
+							"height": "stretch",
+							"items": [
+								{
+									"type": "TextBlock",
+									"size": "large",
+									"text": "**Profile picture changed**"
+								},
+								{
+									"type": "TextBlock",
+									"spacing": "none",
+									"text": "User: [Alex Darrow](alexd@tradersinc.onmicrosoft.com)"
+								},
+								{
+									"type": "TextBlock",
+									"spacing": "default",
+									"color": "attention",
+									"text": "This change requires your approval."
+								}
+							]
+						},
+						{
+							"type": "ActionSet",
+							"actions": [
+								{
+									"type": "Action.OpenUrl",
+									"title": "Approve",
+									"url": "http://hyperfish.com"
+								},
+								{
+									"type": "Action.OpenUrl",
+									"title": "Reject",
+									"url": "http://hyperfish.com"
+								},
+								{
+									"type": "Action.OpenUrl",
+									"title": "Review requests",
+									"url": "http://hyperfish.com"
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

@@ -1,20 +1,25 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import App from './App';
+import * as promiseFinally from 'promise.prototype.finally';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware  } from 'redux';
-import thunkMiddleware from 'redux-thunk';
-import playgroundApp from './reducers';
 
-let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
-export let store = createStoreWithMiddleware(playgroundApp);
+import { Provider as MobxProvider } from 'mobx-react';
+import editorStore from './stores/editorStore';
+import authStore from './stores/authStore';
+import userStore from './stores/userStore';
+
+const mobxStores = { editorStore, authStore, userStore };
+
+// tslint:disable-next-line:no-string-literal
+window['__mobxStores'] = mobxStores;
+promiseFinally.shim();
 
 ReactDOM.render(
-  <Provider store={store}>
-  <App />
-  </Provider>,
-  document.getElementById('root') as HTMLElement
+    <MobxProvider {...mobxStores}>
+        <App />
+    </MobxProvider>,
+    document.getElementById('root') as HTMLElement
 );
 registerServiceWorker();

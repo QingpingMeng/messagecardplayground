@@ -8,6 +8,8 @@
     "allowJs": true,
     "jsx": "react",
     "moduleResolution": "node",
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
@@ -20,10 +22,12 @@
   },
   "exclude": [
     "node_modules",
+    "local_modules",
     "build",
     "scripts",
     "acceptance-tests",
     "webpack",
+    "config",
     "jest",
     "src/setupTests.ts"
   ]

@@ -1,63 +1,119 @@
 import * as React from 'react';
-import './CardPreviewPanel.css';
-import { MessageCard, InvokeAddInCommandAction } from '../../../utilities/message-card';
+import {
+    MessageCard,
+    InvokeAddInCommandAction,
+    DisplayMessageFormAction,
+    DisplayAppointmentFormAction
+} from '../../../utilities/message-card';
 import { AdaptiveCard, Action, ActionSet, HttpAction } from 'adaptivecards';
-import { defaultCardConfig, initializeHostContainers } from '../../../utilities/host-containers';
-import { actionExecuted, parseElement, anchorClicked, processMarkdown } from '../../../utilities/call-registry';
-import { connect } from 'react-redux';
-import { State } from '../../../reducers/index';
+import { setTheme, getThemeByName, initializeThemes } from '../../../utilities/themes';
+import {
+    actionExecuted,
+    parseElement,
+    processMarkdown,
+    anchorClicked
+} from '../../../utilities/call-registry';
+import { EditorStore } from '../../../stores/editorStore';
+import { inject, observer } from 'mobx-react';
 
-export interface CardPreviewReduxProps {
-    payload: string;
+interface StoreProps {
+    editorStore: EditorStore;
 }
-class CardPreviewPanel extends React.Component<CardPreviewReduxProps> {
+
+@inject('editorStore')
+@observer
+export default class CardPreviewPanel extends React.Component {
     private cardPreviewDiv: HTMLDivElement | null;
+
+    get stores() {
+        return this.props as StoreProps;
+    }
+
     public componentDidMount() {
-        initializeHostContainers();
+        initializeThemes();
         this.initializeAdaptiveCard();
+        this.updateCardPreview();
     }
 
     public componentDidUpdate() {
-        if (this.cardPreviewDiv) {
-            try {
-                const card = JSON.parse(this.props.payload);
-                let cardTypeName = card['@type'] || card.type;
-                let renderedCard: HTMLElement | null = null;
+        this.updateCardPreview();
+    }
 
-                switch (cardTypeName) {
-                    case 'SwiftCard':
-                    case 'MessageCard':
-                        let messageCard = new MessageCard();
-                        messageCard.parse(card);
+    public render() {
+        return (
+            <div
+                key={this.stores.editorStore.payloadText[0]}
+                className="preview"
+                ref={div => (this.cardPreviewDiv = div)}
+            />
+        );
+    }
 
-                        if (messageCard.hostContainer) {
-                            this.setTheme(messageCard.hostContainer.styleSheetName);
-                            renderedCard = messageCard.hostContainer.render(messageCard);
-                        }
+    public renderCard() {
+        const card = JSON.parse(this.stores.editorStore.payloadText);
+        let cardTypeName = card['@type'] || card.type || 'AdaptiveCard';
+        let renderedCard: HTMLElement | null = null;
 
-                        break;
-                    case 'AdaptiveCard':
-                        let adaptiveCard = new AdaptiveCard();
-                        adaptiveCard.hostConfig = defaultCardConfig;
-                        adaptiveCard.parse(card);
-
-                        renderedCard = document.createElement('div');
-                        renderedCard.style.border = '1px solid #EEEEEE';
-                        renderedCard.appendChild(adaptiveCard.render());
+        switch (cardTypeName) {
+            case 'SwiftCard':
+            case 'MessageCard':
+                let messageCard = new MessageCard();
+                messageCard.parse(card);
+                setTheme(messageCard.theme.styleSheetName);
+                switch (messageCard.theme.name) {
+                    case 'compact':
+                        renderedCard.style.borderLeft = '5px solid #A6A6A6';
 
                         break;
                     default:
-                        if (cardTypeName) {
-                            throw new Error('Error: The card\'s type must be specified.');
-                        } else {
-                            throw new Error('Error: Unknown card type: ' + cardTypeName);
+                        renderedCard.style.border = '1px solid #EEEEEE';
+
+                        if (messageCard.themeColor) {
+                            renderedCard.style.borderLeft =
+                                '3px solid #' + messageCard.themeColor;
                         }
+
+                        break;
                 }
+
+                break;
+            case 'AdaptiveCard':
+                let adaptiveCard = new AdaptiveCard();
+                let theme = getThemeByName(card.theme);
+
+                setTheme(theme.styleSheetName);
+                adaptiveCard.hostConfig = theme.hostConfig;
+                adaptiveCard.parse(card);
+
+                renderedCard = document.createElement('div');
+                renderedCard.style.border = '1px solid #EEEEEE';
+                renderedCard.appendChild(adaptiveCard.render());
+
+                break;
+            default:
+                if (cardTypeName) {
+                    throw new Error(
+                        // tslint:disable-next-line:quotemark
+                        "Error: The card's type must be specified."
+                    );
+                } else {
+                    throw new Error(
+                        'Error: Unknown card type: ' + cardTypeName
+                    );
+                }
+        }
+
+        return renderedCard;
+    }
+
+    private updateCardPreview() {
+        if (this.cardPreviewDiv) {
+            try {
+                const renderedCard = this.renderCard();
                 if (this.cardPreviewDiv && renderedCard) {
                     this.cardPreviewDiv.innerHTML = '';
                     this.cardPreviewDiv.appendChild(renderedCard);
                 }
-
             } catch (e) {
                 if (this.cardPreviewDiv) {
                     this.cardPreviewDiv.innerHTML = e.toString();
@@ -66,31 +122,38 @@ class CardPreviewPanel extends React.Component<CardPreviewReduxProps> {
         }
     }
 
-    public render() {
-        return (
-            <div
-                className="preview"
-                ref={div => this.cardPreviewDiv = div}
-            />
-        );
-    }
-
-    private setTheme(themeName: string) {
-        require(`./${themeName}.css`);
-    }
-
     private initializeAdaptiveCard(): void {
-        AdaptiveCard.preExpandSingleShowCardAction = true;
-
-        AdaptiveCard.elementTypeRegistry.registerType('ActionSet', () => { return new ActionSet(); });
+        AdaptiveCard.elementTypeRegistry.registerType('ActionSet', () => {
+            return new ActionSet();
+        });
         AdaptiveCard.actionTypeRegistry.unregisterType('Action.Submit');
-        AdaptiveCard.actionTypeRegistry.registerType('Action.Http', () => { return new HttpAction(); });
+        AdaptiveCard.actionTypeRegistry.registerType('Action.Http', () => {
+            return new HttpAction();
+        });
         AdaptiveCard.actionTypeRegistry.registerType(
-            'Action.InvokeAddInCommand', 
-            () => { return new InvokeAddInCommandAction(); });
+            'Action.InvokeAddInCommand',
+            () => {
+                return new InvokeAddInCommandAction();
+            }
+        );
         AdaptiveCard.actionTypeRegistry.registerType(
-            'Action.ToggleVisibility', 
-            () => { return new ToggleVisibilityAction(); });
+            'Action.ToggleVisibility',
+            () => {
+                return new ToggleVisibilityAction();
+            }
+        );
+        AdaptiveCard.actionTypeRegistry.registerType(
+            'Action.DisplayMessageForm',
+            () => {
+                return new DisplayMessageFormAction();
+            }
+        );
+        AdaptiveCard.actionTypeRegistry.registerType(
+            'Action.DisplayAppointmentForm',
+            () => {
+                return new DisplayAppointmentFormAction();
+            }
+        );
 
         AdaptiveCard.onExecuteAction = actionExecuted;
         AdaptiveCard.onParseElement = parseElement;
@@ -109,7 +172,9 @@ export class ToggleVisibilityAction extends Action {
     execute() {
         if (this.targetElementIds) {
             for (var i = 0; i < this.targetElementIds.length; i++) {
-                var targetElement = this.parent.getRootElement().getElementById(this.targetElementIds[i]);
+                var targetElement = this.parent
+                    .getRootElement()
+                    .getElementById(this.targetElementIds[i]);
 
                 if (targetElement) {
                     targetElement.isVisible = !targetElement.isVisible;
@@ -118,17 +183,9 @@ export class ToggleVisibilityAction extends Action {
         }
     }
 
-    parse(json: {targetElementIds: Array<string>}) {
+    parse(json: { targetElementIds: Array<string> }) {
         super.parse(json);
 
         this.targetElementIds = json.targetElementIds;
     }
 }
-
-function mapStateToProps(state: State) {
-    return {
-        payload: state.currentEditingCard.body,
-    };
-}
-
-export default connect(mapStateToProps)(CardPreviewPanel) as React.ComponentClass<{}>;
