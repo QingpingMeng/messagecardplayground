@@ -78,7 +78,7 @@
     "webpack-manifest-plugin": "^2.0.3"
   },
   "engines": {
-    "node": ">= 8.9.0",
+    "node": ">=8.9.0",
     "npm": ">=5.0.0"
   },
   "homepage": "https://qms3.blob.core.windows.net/messagecard-playground",
